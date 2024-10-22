@@ -1,29 +1,108 @@
-/* General Styling */
-body, html, #root {
-  margin: 0;
-  padding: 0;
-  font-family: 'Arial', sans-serif;
-  height: 100%;
-}
 
-/* Main Content Styling */
-.simple-content {
+
+
+.header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  height: 80vh;
-  background-color: #f0f2f5;
-}
-
-h1 {
-  font-size: 36px;
-  color: #001529;
-}
-
-/* Footer Styling */
-.simple-footer {
-  text-align: center;
+  padding: 0 50px;
   background-color: #001529;
+}
+
+.logo {
   color: white;
-  padding: 10px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.menu {
+  flex: 1;
+  margin-left: 50px;
+}
+
+.account-dropdown {
+  margin-left: auto;
+}
+
+.account-button {
+  color: white !important; 
+  font-size: 16px;
+}
+
+.account-button:hover {
+  color: white !important;  
+  background-color: transparent !important;  
+}
+
+/* Hero Section */
+.hero-section {
+  background-color: #282c34;
+  color: white;
+  padding: 100px 20px;
+  text-align: center;
+  opacity: 0;
+}
+
+.hero-section.animate__fadeInUp {
+  opacity: 1;
+  animation-duration: 1s;
+}
+
+.hero-section h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.hero-section p {
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+
+.hero-section .ant-btn-primary {
+  font-size: 18px;
+  padding: 10px 40px;
+}
+
+/* Books Section */
+.books-section {
+  padding: 50px 20px;
+  background-color: #f0f2f5;
+  text-align: center;
+  opacity: 0;
+}
+
+.books-section.animate__fadeInUp {
+  opacity: 1;
+  animation-duration: 1s;
+}
+
+.books-section h2 {
+  font-size: 32px;
+  margin-bottom: 40px;
+}
+
+.books-section .ant-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.books-section .ant-card:hover {
+  transform: scale(1.05);
+}
+
+/* Community Section */
+.community-section {
+  padding: 50px;
+  background-color: #ffffff;
+  text-align: center;
+  opacity: 0;
+}
+
+.community-section.animate__fadeInUp {
+  opacity: 1;
+  animation-duration: 1s;
+}
+
+.community-section h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
 }
