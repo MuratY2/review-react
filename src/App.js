@@ -8,6 +8,7 @@ import { auth } from './firebase';
 import 'animate.css';
 import './App.css';
 import Signup from './Signup';
+import Login from './Login';  // Import the Login component
 import { notification } from 'antd';
 
 const { Header, Content } = Layout;
@@ -53,7 +54,7 @@ const App = () => {
         <Link to="/signup">Sign Up</Link>
       </Menu.Item>
       <Menu.Item key="2">
-        <a href="#login">Login</a>
+        <Link to="/login">Login</Link>  {/* Link to login page */}
       </Menu.Item>
     </Menu>
   );
@@ -77,7 +78,8 @@ const App = () => {
 
         <Content className="main-content">
           <Routes>
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/signup" element={<Signup />} />  {/* Signup route */}
+            <Route path="/login" element={<Login />} />    {/* Login route */}
             <Route path="/" element={(
               <>
                 <div className="hero-section animate__animated animate__fadeInUp">
