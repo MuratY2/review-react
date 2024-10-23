@@ -1,5 +1,14 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
 
-
+.layout {
+  min-height: 100vh;
+  width: 100%;
+}
 
 .header {
   display: flex;
@@ -7,17 +16,27 @@
   align-items: center;
   padding: 0 50px;
   background-color: #001529;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .logo {
   color: white;
   font-size: 24px;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 .menu {
   flex: 1;
-  margin-left: 50px;
+  display: flex;
+  justify-content: center;
+  margin-left: 20px;
+}
+
+.menu-item {
+  margin-right: 20px;
+  color: white;
 }
 
 .account-dropdown {
@@ -25,16 +44,11 @@
 }
 
 .account-button {
-  color: white !important; 
+  color: white;
   font-size: 16px;
+  white-space: nowrap;
 }
 
-.account-button:hover {
-  color: white !important;  
-  background-color: transparent !important;  
-}
-
-/* Hero Section */
 .hero-section {
   background-color: #282c34;
   color: white;
@@ -63,7 +77,6 @@
   padding: 10px 40px;
 }
 
-/* Books Section */
 .books-section {
   padding: 50px 20px;
   background-color: #f0f2f5;
@@ -89,7 +102,6 @@
   transform: scale(1.05);
 }
 
-/* Community Section */
 .community-section {
   padding: 50px;
   background-color: #ffffff;
@@ -105,4 +117,56 @@
 .community-section h2 {
   font-size: 32px;
   margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 0 20px;
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  .menu-item {
+    margin-right: 10px;
+  }
+
+  .account-button {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .header {
+    padding: 0 10px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .menu {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .menu-item {
+    font-size: 14px;
+    margin-right: 5px;
+  }
+
+  .account-dropdown {
+    margin-left: 10px;
+  }
+
+  .account-button {
+    font-size: 14px;
+  }
+}
+
+.main-content {
+  padding: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
