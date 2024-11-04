@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Aldrich&display=swap');
+
 html, body {
   margin: 0;
   padding: 0;
@@ -15,16 +17,25 @@ html, body {
   justify-content: space-between;
   align-items: center;
   padding: 0 50px;
-  background-color: #001529;
+  background-color: #F2EED7;
   width: 100%;
   box-sizing: border-box;
 }
 
 .logo {
-  color: white;
-  font-size: 24px;
+  font-size: 36px;
   font-weight: bold;
   white-space: nowrap;
+  text-decoration: none; /* Removes the underline */
+}
+
+
+.logo-part1 {
+  color: #EB5F5D;
+}
+
+.logo-part2 {
+  color: #626F47;
 }
 
 .menu {
@@ -32,141 +43,218 @@ html, body {
   display: flex;
   justify-content: center;
   margin-left: 20px;
+  background-color: #F2EED7;
+  gap: 30px;
 }
 
 .menu-item {
-  margin-right: 20px;
-  color: white;
+  color: #BC7C7C;
+  font-family: 'Aldrich', sans-serif;
+  text-decoration: none;
+  padding: 10px 20px;
+  position: relative;
+}
+
+.menu-item:hover {
+  color: #BB1542;
+}
+
+.menu-item.active {
+  color: #BB1542;
+}
+
+
+.menu-item::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 3px;
+  background-color: #798645;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  border-radius: 20px;
+  color: #BB1542;
+
+}
+
+.menu-item:hover::after {
+  opacity: 1;
+}
+
+.menu-item.active::after {
+  opacity: 1;
 }
 
 .account-dropdown {
+  position: relative;
   margin-left: auto;
 }
 
 .account-button {
-  color: white;
+  color: #BC7C7C;
   font-size: 16px;
   white-space: nowrap;
+  font-family: 'Aldrich', sans-serif;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.hero-section {
-  background-color: #282c34;
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #F2EED7;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+  min-width: 150px;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 20px;
+  color: black;
+  text-decoration: none;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Aldrich', sans-serif;
+}
+
+.dropdown-item:hover {
+  background-color: #EB5F5D;
   color: white;
-  padding: 100px 20px;
-  text-align: center;
-  opacity: 0;
 }
 
-.hero-section.animate__fadeInUp {
-  opacity: 1;
-  animation-duration: 1s;
-}
-
-.hero-section h1 {
-  font-size: 48px;
-  margin-bottom: 20px;
-}
-
-.hero-section p {
-  font-size: 18px;
-  margin-bottom: 30px;
-}
-
-.hero-section .ant-btn-primary {
-  font-size: 18px;
+.primary-button {
+  background-color: #BB1542;
+  color: white;
+  border: none;
   padding: 10px 40px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 4px;
 }
 
-.books-section {
+.secondary-button {
+  background-color: transparent;
+  border: 2px solid #BB1542;
+  color: #BB1542;
+  padding: 10px 40px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   padding: 50px 20px;
-  background-color: #f0f2f5;
-  text-align: center;
-  opacity: 0;
+  background-color: #F8F4E3; /* A soft background color */
+  font-family: 'Aldrich', sans-serif;
 }
 
-.books-section.animate__fadeInUp {
-  opacity: 1;
-  animation-duration: 1s;
-}
-
-.books-section h2 {
-  font-size: 32px;
-  margin-bottom: 40px;
-}
-
-.books-section .ant-card {
-  transition: transform 0.2s ease-in-out;
-}
-
-.books-section .ant-card:hover {
-  transform: scale(1.05);
-}
-
+.hero-section,
+.books-section,
 .community-section {
-  padding: 50px;
-  background-color: #ffffff;
-  text-align: center;
-  opacity: 0;
+  max-width: 800px;
+  margin: 40px 0;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: #FFFFFF; /* White background for contrast */
 }
 
-.community-section.animate__fadeInUp {
-  opacity: 1;
-  animation-duration: 1s;
-}
-
+.hero-section h1,
+.books-section h2,
 .community-section h2 {
   font-size: 32px;
-  margin-bottom: 20px;
+  color: #BB1542; /* Accent color for headings */
+  margin-bottom: 15px;
 }
+
+.hero-section p,
+.books-section p,
+.community-section p {
+  font-size: 18px;
+  color: #333333;
+  line-height: 1.6;
+}
+
+.primary-button,
+.secondary-button {
+  margin-top: 20px;
+}
+
+.books-page {
+  max-width: 800px;
+  margin: 40px 0;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: #FFFFFF;
+}
+
+.book-form input {
+  margin: 10px 5px;
+  padding: 10px;
+  border: 1px solid #CCC;
+  border-radius: 4px;
+  width: calc(100% - 22px);
+}
+
+.book-form input:focus {
+  border-color: #BB1542;
+  outline: none;
+}
+
+.book-form button {
+  margin-top: 10px;
+}
+
+
 
 @media (max-width: 768px) {
   .header {
     padding: 0 20px;
   }
 
-  .logo {
-    font-size: 20px;
+  .menu {
+    gap: 10px;
   }
 
   .menu-item {
-    margin-right: 10px;
-  }
-
-  .account-button {
-    font-size: 14px;
+    padding: 10px;
   }
 }
 
 @media (max-width: 576px) {
   .header {
     padding: 0 10px;
-  }
-
-  .logo {
-    font-size: 18px;
+    flex-wrap: wrap;
   }
 
   .menu {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-
-  .menu-item {
-    font-size: 14px;
-    margin-right: 5px;
+    order: 3;
+    width: 100%;
+    margin: 10px 0;
+    justify-content: space-around;
   }
 
   .account-dropdown {
-    margin-left: 10px;
+    order: 2;
   }
-
-  .account-button {
-    font-size: 14px;
-  }
-}
-
-.main-content {
-  padding: 20px;
-  max-width: 100%;
-  box-sizing: border-box;
 }
