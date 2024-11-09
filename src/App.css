@@ -26,7 +26,7 @@ html, body {
   font-size: 36px;
   font-weight: bold;
   white-space: nowrap;
-  text-decoration: none; /* Removes the underline */
+  text-decoration: none; 
 }
 
 
@@ -87,6 +87,11 @@ html, body {
 .menu-item.active::after {
   opacity: 1;
 }
+
+
+
+
+
 
 .account-dropdown {
   position: relative;
@@ -163,67 +168,170 @@ html, body {
   justify-content: center;
   text-align: center;
   padding: 50px 20px;
-  background-color: #F8F4E3; /* A soft background color */
+  background-color: white;
   font-family: 'Aldrich', sans-serif;
 }
 
-.hero-section,
-.books-section,
-.community-section {
-  max-width: 800px;
-  margin: 40px 0;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  background-color: #FFFFFF; /* White background for contrast */
+
+
+
+
+
+
+.category-section {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px 0 40px; 
 }
 
-.hero-section h1,
-.books-section h2,
-.community-section h2 {
+.sub-title {
+  font-size: 16px;
+  color: #BB1542;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.section-title {
   font-size: 32px;
-  color: #BB1542; /* Accent color for headings */
-  margin-bottom: 15px;
+  font-weight: bold;
+  color: #333;
 }
 
-.hero-section p,
-.books-section p,
-.community-section p {
-  font-size: 18px;
-  color: #333333;
-  line-height: 1.6;
-}
-
-.primary-button,
-.secondary-button {
-  margin-top: 20px;
-}
-
-.books-page {
-  max-width: 800px;
-  margin: 40px 0;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  background-color: #FFFFFF;
-}
-
-.book-form input {
-  margin: 10px 5px;
+.categories-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 20px;
   padding: 10px;
-  border: 1px solid #CCC;
-  border-radius: 4px;
-  width: calc(100% - 22px);
+  background-color: #FFFFFF; 
+}
+.category-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.book-form input:focus {
-  border-color: #BB1542;
-  outline: none;
+.category-card {
+  position: relative; 
+  background-color: #ebeaea; 
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+  overflow: hidden;
 }
 
-.book-form button {
-  margin-top: 10px;
+.category-card::before {
+  content: '';
+  position: absolute;
+  width: 120%; 
+  height: 120%;
+  background-color: #ff7e7e; 
+  border-radius: 50%;
+  right: -20%;
+  bottom: -80%;
+  transition: all 0.5s ease;
+  z-index: 0;
+  opacity: 60%;
 }
+
+.category-card:hover::before {
+  width: 140%; 
+  height: 140%;
+  right: -30%; 
+  bottom: -90%;
+}
+
+.category-card:hover::before {
+  width: 140%;  
+  height: 140%;
+  right: -30%;  
+  bottom: -90%;
+}
+
+.category-card:hover {
+  transform: scale(1.05);
+  z-index: 2;  
+}
+
+.category-icon, .category-card h3, .category-card p {
+  position: relative;
+  z-index: 1;  
+  color: #333;  
+}
+
+.category-card.small {
+  height: 150px; 
+  width: 180px; 
+}
+
+.category-card.medium {
+  flex: 0 0 220px; 
+}
+
+.category-card.large {
+  height: 360px; 
+  width: 380px; 
+}
+
+.category-card h3 {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 10px 0 5px;
+}
+
+.category-card p {
+  font-size: 14px;
+  color: inherit;
+}
+
+.category-icon {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .category-header {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .categories-grid {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+.sub-title, .section-title {
+  margin: 5px; 
+}
+.titles {
+  flex-grow: 1;
+  text-align: left; 
+}
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 20px; 
+  margin-bottom: 20px;
+}
+
+.view-all {
+  padding: 10px 20px;
+  color: white; 
+  background-color: #EB5F5D; 
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.view-all:hover {
+  background-color: #D9534F; 
+}
+
+
 
 
 
