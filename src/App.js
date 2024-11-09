@@ -12,6 +12,8 @@ import About from './About';
 import Contact from './Contact';
 import Event from './Event';
 import './App.css';
+import BookUpload from './BookUpload';
+import BookList from './BookList';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -66,6 +68,7 @@ const App = () => {
           <Link to="/about" className={`menu-item ${activeMenuItem === '/about' ? 'active' : ''}`} onClick={() => handleMenuClick('/about')}>About</Link>
           <Link to="/contact" className={`menu-item ${activeMenuItem === '/contact' ? 'active' : ''}`} onClick={() => handleMenuClick('/contact')}>Contact</Link>
           <Link to="/event" className={`menu-item ${activeMenuItem === '/event' ? 'active' : ''}`} onClick={() => handleMenuClick('/event')}>Event</Link>
+          <Link to="/bookupload" className={`menu-item ${activeMenuItem === '/bookupload' ? 'active' : ''}`} onClick={() => handleMenuClick('/bookupload')}>Upload</Link>
         </nav>
         <div className="account-dropdown">
           <button className="account-button" onClick={toggleDropdown}>
@@ -146,6 +149,8 @@ const App = () => {
           <Route path="/event" element={<Event />} />
           <Route path="/books" element={<Books />} />
           <Route path="/books/:category" element={<Books />} />
+          <Route path="/booklist" element={<BookList />} />
+          <Route path="/bookupload" element={<BookUpload />} />
         </Routes>
       </main>
     </div>
