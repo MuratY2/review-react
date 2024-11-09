@@ -8,10 +8,15 @@ import axios from 'axios';
 const BookUpload = () => {
   const [isbn, setIsbn] = useState('');
   const [file, setFile] = useState(null);
+  const [category, setCategory] = useState('');  
   const [loading, setLoading] = useState(false);
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
+  };
+
+  const handleCategoryChange = (event) => {
+    setCategory(event.target.value);  
   };
 
   const fetchBookData = async (isbn) => {
@@ -45,11 +50,14 @@ const BookUpload = () => {
     }
   };
 
-  
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     
+    if (!category) {
+      alert('Please select a category.');
+      return;
+    }
+
     setLoading(true);
     const bookData = await fetchBookData(isbn);
 
@@ -61,7 +69,6 @@ const BookUpload = () => {
     try {
       let coverImageUrl = bookData.coverImageUrl;
 
- 
       if (file) {
         const storageRef = ref(storage, `book-covers/${file.name}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
@@ -79,13 +86,13 @@ const BookUpload = () => {
         });
       }
 
-     
       await addDoc(collection(db, 'books_pending'), {
         title: bookData.title,
         author: bookData.author,
         description: bookData.description,
         isbn,
         coverImageUrl,
+        category, 
         createdAt: new Date(),
         status: 'pending',
       });
@@ -93,6 +100,7 @@ const BookUpload = () => {
       alert('Book uploaded successfully and is awaiting admin approval.');
       setIsbn('');
       setFile(null);
+      setCategory('');  
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -106,10 +114,26 @@ const BookUpload = () => {
         ISBN:
         <input type="text" value={isbn} onChange={(e) => setIsbn(e.target.value)} required />
       </label>
+      
+      <label>
+        Category:
+        <select value={category} onChange={handleCategoryChange} required>
+          <option value="">Select Category</option>
+          <option value="art-design">Art & Design</option>
+          <option value="business">Business</option>
+          <option value="it-technology">IT & Technology</option>
+          <option value="medicine">Medicine</option>
+          <option value="science">Science</option>
+          <option value="financial">Financial</option>
+          <option value="audio-books">Audio Books</option>
+        </select>
+      </label>
+
       <label>
         Cover Image (optional):
         <input type="file" onChange={handleFileChange} />
       </label>
+      
       <button type="submit" disabled={loading}>
         {loading ? 'Uploading...' : 'Upload Book'}
       </button>
