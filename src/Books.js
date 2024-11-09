@@ -10,12 +10,11 @@ const Books = () => {
 
   useEffect(() => {
     setSelectedCategory(category || 'all');
-    // Fetch books based on category or fetch all if no category is specified
+
   }, [category]);
 
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value);
-    // Fetch new category books
   };
 
   return (
@@ -37,7 +36,6 @@ const Books = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search by name..."
       />
-      {/* Display books here */}
     </div>
   );
 };
