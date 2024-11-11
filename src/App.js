@@ -14,6 +14,7 @@ import Event from './Event';
 import './App.css';
 import BookUpload from './BookUpload';
 import BookList from './BookList';
+import BookApproval from './BookApproval';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -151,6 +152,7 @@ const App = () => {
           <Route path="/books/:category" element={<Books />} />
           <Route path="/booklist" element={<BookList />} />
           <Route path="/bookupload" element={<BookUpload />} />
+          <Route path="/bookapproval" element={<BookApproval />} />
         </Routes>
       </main>
     </div>
