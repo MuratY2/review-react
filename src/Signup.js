@@ -1,73 +1,51 @@
-// src/Signup.js
+// File: src/Signup.js
 import React, { useState } from 'react';
-import { Form, Input, Button, notification } from 'antd';
+import { auth, db } from './firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './firebase';
-import { useNavigate } from 'react-router-dom';  
+import { setDoc, doc } from 'firebase/firestore';
 
 const Signup = () => {
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const onFinish = (values) => {
-    setLoading(true);
-    const { email, password } = values;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        notification.success({
-          message: 'Signup Successful',
-          description: 'You have successfully signed up!',
-        });
-        setLoading(false);
-        navigate('/');  
-      })
-      .catch((error) => {
-        notification.error({
-          message: 'Signup Failed',
-          description: error.message,
-        });
-        setLoading(false);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, 'users', user.uid), {
+        email: user.email,
+        role: 'user',
       });
+
+      alert('User registered successfully');
+      setEmail('');
+      setPassword('');
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto', padding: '40px' }}>
-      <h2 style={{ textAlign: 'center' }}>Sign Up</h2>
-      <Form
-        name="signup"
-        layout="vertical"
-        onFinish={onFinish}
-      >
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[
-            { required: true, message: 'Please input your email!' },
-            { type: 'email', message: 'The input is not valid email!' }
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[
-            { required: true, message: 'Please input your password!' },
-            { min: 6, message: 'Password must be at least 6 characters!' }
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit" block loading={loading}>
-            Sign Up
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <button type="submit">Sign Up</button>
+    </form>
   );
 };
 
