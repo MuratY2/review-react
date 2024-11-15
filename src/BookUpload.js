@@ -7,6 +7,7 @@ import axios from 'axios';
 
 const BookUpload = () => {
   const [isbn, setIsbn] = useState('');
+  const [author, setAuthor] = useState(''); 
   const [file, setFile] = useState(null);
   const [category, setCategory] = useState('');  
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ const BookUpload = () => {
   const fetchBookData = async (isbn) => {
     try {
       console.log("Fetching data for ISBN:", isbn);
-      const response = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json`);
+      const response = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
       const bookData = response.data[`ISBN:${isbn}`];
   
       console.log("Fetched book data:", bookData); 
@@ -32,14 +33,12 @@ const BookUpload = () => {
         return null;
       }
   
-      const title = bookData.info_url.split('/').pop();
-      const author = 'Unknown Author'; 
-      const coverImageUrl = bookData.thumbnail_url || ''; 
-      const description = 'No description available'; 
+      const title = bookData.title || 'Unknown Title';
+      const coverImageUrl = bookData.cover ? bookData.cover.medium : ''; 
+      const description = bookData.description ? bookData.description.value || bookData.description : 'No description available'; 
   
       return {
         title,
-        author,
         coverImageUrl,
         description,
       };
@@ -55,6 +54,11 @@ const BookUpload = () => {
     
     if (!category) {
       alert('Please select a category.');
+      return;
+    }
+
+    if (!author) {
+      alert('Please enter the author.');
       return;
     }
 
@@ -88,7 +92,7 @@ const BookUpload = () => {
 
       await addDoc(collection(db, 'books_pending'), {
         title: bookData.title,
-        author: bookData.author,
+        author, 
         description: bookData.description,
         isbn,
         coverImageUrl,
@@ -99,6 +103,7 @@ const BookUpload = () => {
 
       alert('Book uploaded successfully and is awaiting admin approval.');
       setIsbn('');
+      setAuthor(''); 
       setFile(null);
       setCategory('');  
       setLoading(false);
@@ -113,6 +118,11 @@ const BookUpload = () => {
       <label>
         ISBN:
         <input type="text" value={isbn} onChange={(e) => setIsbn(e.target.value)} required />
+      </label>
+
+      <label>
+        Author:
+        <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} required />
       </label>
       
       <label>
