@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { UserOutlined } from '@ant-design/icons';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from './firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from './firebase';
 import { notification } from 'antd';
 import 'animate.css';
 import Signup from './Signup';
@@ -18,13 +19,26 @@ import BookApproval from './BookApproval';
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activeMenuItem, setActiveMenuItem] = useState('/');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        // Check if the user has an admin role
+        const userRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists() && docSnap.data().role === 'admin') {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -80,6 +94,9 @@ const App = () => {
               {user ? (
                 <>
                   <Link to="/profile" className="dropdown-item">Profile</Link>
+                  {isAdmin && (
+                    <Link to="/bookapproval" className="dropdown-item">Book Approvals</Link>
+                  )}
                   <button onClick={handleLogout} className="dropdown-item">Logout</button>
                 </>
               ) : (

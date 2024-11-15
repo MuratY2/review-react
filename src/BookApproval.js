@@ -1,13 +1,47 @@
-// File: src/BookApproval.js
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
-import { db } from './firebase';
+import { collection, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { db, auth } from './firebase';
+import { useNavigate } from 'react-router-dom';
 
 const BookApproval = () => {
   const [pendingBooks, setPendingBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const checkUserRole = async () => {
+      const unsubscribe = auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          try {
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef); 
+            
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              console.log('User data:', userData); 
+
+              if (userData && userData.role === 'admin') {
+                setIsAdmin(true);
+              } else {
+                navigate('/'); 
+              }
+            } else {
+              console.log('No user data found');
+            }
+          } catch (error) {
+            console.error('Error fetching user role:', error);
+          }
+        } else {
+          navigate('/login'); 
+        }
+      });
+
+      return () => unsubscribe(); 
+    };
+
+    checkUserRole();
+
     const fetchPendingBooks = async () => {
       setLoading(true);
       try {
@@ -23,8 +57,8 @@ const BookApproval = () => {
       }
     };
 
-    fetchPendingBooks();
-  }, []);
+    if (isAdmin) fetchPendingBooks(); 
+  }, [isAdmin, navigate]);  
 
   const approveBook = async (bookId) => {
     try {
@@ -49,6 +83,10 @@ const BookApproval = () => {
       alert('Error rejecting the book.');
     }
   };
+
+  if (!isAdmin) {
+    return <p>You must be an admin to access this page.</p>; 
+  }
 
   return (
     <div>
