@@ -16,6 +16,7 @@ import './App.css';
 import BookUpload from './BookUpload';
 import BookList from './BookList';
 import BookApproval from './BookApproval';
+import Profile from './Profile';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -170,6 +171,7 @@ const App = () => {
           <Route path="/booklist" element={<BookList />} />
           <Route path="/bookupload" element={<BookUpload />} />
           <Route path="/bookapproval" element={<BookApproval />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </main>
     </div>
