@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 import './Books.css';
@@ -10,6 +10,18 @@ const Books = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [priceRange, setPriceRange] = useState([30, 60]);
+
+  const categoryNames = {
+    'all': 'All Books',
+    'art-design': 'Art & Design',
+    'business': 'Business',
+    'it-technology': 'IT & Technology',
+    'medicine': 'Medicine',
+    'science': 'Science',
+    'financial': 'Financial',
+    'audio-books': 'Audio Books'
+  };
 
   useEffect(() => {
     setSelectedCategory(category || 'all');
@@ -50,42 +62,91 @@ const Books = () => {
   );
 
   return (
-    <div>
-      <h1>{selectedCategory !== 'all' ? `${selectedCategory.replace(/-/g, ' ')} Books` : 'All Books'}</h1>
-      
-      <select value={selectedCategory} onChange={handleCategoryChange}>
-        <option value="all">All Categories</option>
-        <option value="art-design">Art & Design</option>
-        <option value="business">Business</option>
-        <option value="it-technology">IT & Technology</option>
-        <option value="medicine">Medicine</option>
-        <option value="science">Science</option>
-        <option value="financial">Financial</option>
-        <option value="audio-books">Audio Books</option>
-      </select>
+    <div className="books-page">
+      {/* Breadcrumb Navigation */}
+      <div className="breadcrumb">
+        <Link to="/">Home</Link>
+        <span>›</span>
+        <span className="current">{categoryNames[selectedCategory]}</span>
+      </div>
 
-      <input
-        type="text"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search by name..."
-      />
+      {/* Category Title */}
+      <h1 className="category-title">{categoryNames[selectedCategory]}</h1>
 
-      {loading && <p>Loading books...</p>}
-
-      <div className="book-list">
-        {filteredBooks.length > 0 ? (
-          filteredBooks.map((book) => (
-            <div key={book.id} className="book-card">
-              <img src={book.coverImageUrl} alt={`${book.title} cover`} />
-              <h3>{book.title}</h3>
-              <p><strong>Author:</strong> {book.author}</p>
-              <p>{book.description}</p>
+      <div className="books-container">
+        {/* Sidebar Filters */}
+        <div className="sidebar">
+          <div className="filter-section">
+            <h3>Filter by price</h3>
+            <div className="price-range">
+              <span>Price: ${priceRange[0]} — ${priceRange[1]}</span>
+              <button className="filter-button">FILTER</button>
             </div>
-          ))
-        ) : (
-          <p>No books available.</p>
-        )}
+          </div>
+
+          <div className="filter-section">
+            <h3>Categories</h3>
+            <ul className="category-list">
+              {Object.entries(categoryNames).map(([key, name]) => (
+                <li key={key}>
+                  <button 
+                    className={selectedCategory === key ? 'active' : ''}
+                    onClick={() => setSelectedCategory(key)}
+                  >
+                    {name} ({books.filter(book => book.category === key).length})
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="main-content">
+          <div className="books-header">
+            <p>Showing all {filteredBooks.length} results</p>
+            <div className="view-options">
+              <button className="grid-view">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                  <rect x="0" y="0" width="7" height="7"/>
+                  <rect x="9" y="0" width="7" height="7"/>
+                  <rect x="0" y="9" width="7" height="7"/>
+                  <rect x="9" y="9" width="7" height="7"/>
+                </svg>
+              </button>
+              <button className="list-view">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                  <rect x="0" y="0" width="16" height="4"/>
+                  <rect x="0" y="6" width="16" height="4"/>
+                  <rect x="0" y="12" width="16" height="4"/>
+                </svg>
+              </button>
+              <select className="sort-select">
+                <option>Default sorting</option>
+                <option>Sort by popularity</option>
+                <option>Sort by price: low to high</option>
+                <option>Sort by price: high to low</option>
+              </select>
+              <button className="filter-toggle">Filter</button>
+            </div>
+          </div>
+
+          <div className="books-grid">
+            {filteredBooks.map((book) => (
+              <div key={book.id} className="book-card">
+                <div className="book-image">
+                  {book.isHot && <span className="hot-label">HOT</span>}
+                  <img src={book.coverImageUrl} alt={`${book.title} cover`} />
+                </div>
+                <div className="book-info">
+                  <h3>{book.title}</h3>
+                  <p className="author">By {book.author}</p>
+                  <p className="price">${book.price}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

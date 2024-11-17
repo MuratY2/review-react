@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, MenuOutlined, CloseOutlined } from '@ant-design/icons';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -9,7 +9,7 @@ import 'animate.css';
 import Signup from './Signup';
 import Login from './Login';
 import Books from './Books';
-import About from './About';
+import About from './About/About';
 import Contact from './Contact';
 import Event from './Event';
 import './App.css';
@@ -22,6 +22,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMenuItem, setActiveMenuItem] = useState('/');
   const navigate = useNavigate();
 
@@ -29,7 +30,6 @@ const App = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // Check if the user has an admin role
         const userRef = doc(db, 'users', currentUser.uid);
         const docSnap = await getDoc(userRef);
         if (docSnap.exists() && docSnap.data().role === 'admin') {
@@ -60,15 +60,34 @@ const App = () => {
 
   const handleMenuClick = (path) => {
     setActiveMenuItem(path);
+    setIsMobileMenuOpen(false); // Close mobile menu when item is clicked
     navigate(path);
   };
 
-  const handleCategoryClick = (category) => {
-    navigate(`/books/${category}`);
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    if (isDropdownOpen) setIsDropdownOpen(false); // Close dropdown if open
   };
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
+    if (isMobileMenuOpen) setIsMobileMenuOpen(false); // Close mobile menu if open
+  };
+
+  // This function now redirects to the main Books page regardless of category
+  const handleCategoryClick = (category) => {
+    const categoryMapping = {
+      'Art & Design': 'art-design',
+      'Business': 'business',
+      'IT & Technology': 'it-technology',
+      'Financial': 'financial',
+      'Medicine': 'medicine',
+      'Audio Books': 'audio-books'
+    };
+    
+    const formattedCategory = categoryMapping[category];
+    navigate(`/books/${formattedCategory}`);
+    setActiveMenuItem('/books');
   };
 
   return (
@@ -78,15 +97,40 @@ const App = () => {
           <span className="logo-part1">Author</span>
           <span className="logo-part2">Factory</span>
         </Link>
-        <nav className="menu">
-          <Link to="/" className={`menu-item ${activeMenuItem === '/' ? 'active' : ''}`} onClick={() => handleMenuClick('/')}>Home</Link>
-          <Link to="/books" className={`menu-item ${activeMenuItem === '/books' ? 'active' : ''}`} onClick={() => handleMenuClick('/books')}>Books</Link>
-          <Link to="/about" className={`menu-item ${activeMenuItem === '/about' ? 'active' : ''}`} onClick={() => handleMenuClick('/about')}>About</Link>
-          <Link to="/contact" className={`menu-item ${activeMenuItem === '/contact' ? 'active' : ''}`} onClick={() => handleMenuClick('/contact')}>Contact</Link>
-          <Link to="/event" className={`menu-item ${activeMenuItem === '/event' ? 'active' : ''}`} onClick={() => handleMenuClick('/event')}>Event</Link>
-          <Link to="/bookupload" className={`menu-item ${activeMenuItem === '/bookupload' ? 'active' : ''}`} onClick={() => handleMenuClick('/bookupload')}>Upload</Link>
+        
+        <button className="mobile-menu-button" onClick={toggleMobileMenu}>
+          {isMobileMenuOpen ? <CloseOutlined /> : <MenuOutlined />}
+        </button>
+
+        <nav className={`menu ${isMobileMenuOpen ? 'menu-mobile-open' : ''}`}>
+          <Link to="/books" 
+                className={`menu-item ${activeMenuItem === '/books' ? 'active' : ''}`} 
+                onClick={() => handleMenuClick('/books')}>
+            Books
+          </Link>
+          <Link to="/about" 
+                className={`menu-item ${activeMenuItem === '/about' ? 'active' : ''}`} 
+                onClick={() => handleMenuClick('/about')}>
+            About
+          </Link>
+          <Link to="/contact" 
+                className={`menu-item ${activeMenuItem === '/contact' ? 'active' : ''}`} 
+                onClick={() => handleMenuClick('/contact')}>
+            Contact
+          </Link>
+          <Link to="/event" 
+                className={`menu-item ${activeMenuItem === '/event' ? 'active' : ''}`} 
+                onClick={() => handleMenuClick('/event')}>
+            Event
+          </Link>
+          <Link to="/bookupload" 
+                className={`menu-item ${activeMenuItem === '/bookupload' ? 'active' : ''}`} 
+                onClick={() => handleMenuClick('/bookupload')}>
+            Upload
+          </Link>
         </nav>
-        <div className="account-dropdown">
+
+        <div className={`account-dropdown ${isMobileMenuOpen ? 'mobile-visible' : ''}`}>
           <button className="account-button" onClick={toggleDropdown}>
             <UserOutlined /> Account ▼
           </button>
@@ -126,35 +170,35 @@ const App = () => {
                 </div>
                 <div className="categories-grid">
                   <div className="category-column">
-                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('art-design')}>
+                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Art & Design')}>
                       <span className="category-icon">✏️</span>
                       <h3>Art & Design</h3>
                       <p>300 Books</p>
                     </div>
-                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('business')}>
+                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Business')}>
                       <span className="category-icon">📊</span>
                       <h3>Business</h3>
                       <p>450 Books</p>
                     </div>
                   </div>
-                  <div className="category-card large" tabIndex="0" onClick={() => handleCategoryClick('it-technology')}>
+                  <div className="category-card large" tabIndex="0" onClick={() => handleCategoryClick('IT & Technology')}>
                     <span className="category-icon">💻</span>
                     <h3>IT & Technology</h3>
                     <p>900 Books</p>
                   </div>
                   <div className="category-column">
-                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('financial')}>
+                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Financial')}>
                       <span className="category-icon">💰</span>
                       <h3>Financial</h3>
                       <p>700 Books</p>
                     </div>
-                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('medicine')}>
+                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Medicine')}>
                       <span className="category-icon">🏥</span>
                       <h3>Medicine</h3>
                       <p>1000 Books</p>
                     </div>
                   </div>
-                  <div className="category-card large" tabIndex="0" onClick={() => handleCategoryClick('audio-books')}>
+                  <div className="category-card large" tabIndex="0" onClick={() => handleCategoryClick('Audio Books')}>
                     <span className="category-icon">🎧</span>
                     <h3>Audio Books</h3>
                     <p>300 Books</p>
