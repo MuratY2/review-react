@@ -18,7 +18,6 @@ import BookList from './BookList';
 import BookApproval from './BookApproval';
 import Profile from './Profile';
 
-// FeaturedBooks Component
 const FeaturedBooks = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [books, setBooks] = useState([]);
@@ -106,7 +105,7 @@ const EditorialReviews = () => {
       text: "Lorem ipsum that packs a punch. For a new twist on an old classic, drop some Samuel L. Jackson filler text in your next project and Pulp Fictionize that shit.",
       author: "Mohamoud Arafa",
       role: "Project Manager",
-      image: "/path-to-image/profile1.jpg" // You'll need to replace with actual image paths
+      image: "/path-to-image/profile1.jpg" 
     },
     {
       id: 2,
@@ -166,14 +165,14 @@ const BestOfMonth = () => {
       try {
         const q = query(collection(db, 'books_pending'), 
           where('status', '==', 'approved'),
-          limit(4) // Get 4 books - 1 main and 3 recommended
+          limit(4) 
         );
         const querySnapshot = await getDocs(q);
         const booksData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
         if (booksData.length > 0) {
-          setMainBook(booksData[0]); // First book as main feature
-          setRecommendedBooks(booksData.slice(1)); // Rest as recommended
+          setMainBook(booksData[0]); 
+          setRecommendedBooks(booksData.slice(1)); 
         }
       } catch (error) {
         console.error("Error fetching books:", error);

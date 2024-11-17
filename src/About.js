@@ -20,18 +20,15 @@ const About = () => {
   return (
     <div className="about-page">
       <div className="about-hero">
-        <h1>About Us 01</h1>
+        <h1>About Us</h1>
       </div>
 
       <div className="about-content">
         <div className="welcome-section">
-          <h6 className="welcome-subtitle">WELCOME TO OUR STORE</h6>
+          <h6 className="welcome-subtitle">WELCOME</h6>
           <h2 className="welcome-title">Books are a uniquely portable magic</h2>
           <p className="welcome-text">
-            With Mami's determination to force her daughter to obey the laws of the church, Xiomara
-            understands that her thoughts are best kept to herself. So when she is invited to join her school's
-            slam poetry club, she doesn't her mami finding out. But she still can't stop thinking about
-            performing her poems. are best kept to herself.
+          Lorem ipsum that packs a punch. For a new twist on an old classic, drop some Samuel L. Jackson filler text in your next project and Pulp Fictionize that shit.
           </p>
         </div>
 
