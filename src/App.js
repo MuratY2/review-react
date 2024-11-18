@@ -375,35 +375,47 @@ const App = () => {
                 <div className="categories-grid">
                   <div className="category-column">
                     <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Art & Design')}>
-                      <span className="category-icon">✏️</span>
+                      <span className="category-icon" role="img" aria-label="pencil">
+                        ✏️
+                      </span>
                       <h3>Art & Design</h3>
                       <p>300 Books</p>
                     </div>
                     <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Business')}>
-                      <span className="category-icon">📊</span>
+                      <span className="category-icon" role="img" aria-label="chart">
+                        📊
+                      </span>
                       <h3>Business</h3>
                       <p>450 Books</p>
                     </div>
                   </div>
                   <div className="category-card large" tabIndex="0" onClick={() => handleCategoryClick('IT & Technology')}>
-                    <span className="category-icon">💻</span>
+                    <span className="category-icon" role="img" aria-label="computer">
+                      💻
+                    </span>
                     <h3>IT & Technology</h3>
                     <p>900 Books</p>
                   </div>
                   <div className="category-column">
                     <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Financial')}>
-                      <span className="category-icon">💰</span>
+                      <span className="category-icon" role="img" aria-label="money bag">
+                        💰
+                      </span>
                       <h3>Financial</h3>
                       <p>700 Books</p>
                     </div>
                     <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Medicine')}>
-                      <span className="category-icon">🏥</span>
+                      <span className="category-icon" role="img" aria-label="hospital">
+                        🏥
+                      </span>
                       <h3>Medicine</h3>
                       <p>1000 Books</p>
                     </div>
                   </div>
                   <div className="category-card large" tabIndex="0" onClick={() => handleCategoryClick('Audio Books')}>
-                    <span className="category-icon">🎧</span>
+                    <span className="category-icon" role="img" aria-label="headphones">
+                      🎧
+                    </span>
                     <h3>Audio Books</h3>
                     <p>300 Books</p>
                   </div>
