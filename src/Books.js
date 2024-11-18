@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
@@ -7,9 +7,7 @@ import './Books.css';
 const Books = () => {
   const { category } = useParams();
   const [selectedCategory, setSelectedCategory] = useState(category || 'all');
-  const [searchTerm, setSearchTerm] = useState('');
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState([30, 60]);
 
   const categoryNames = {
@@ -27,7 +25,6 @@ const Books = () => {
     setSelectedCategory(category || 'all');
 
     const fetchBooks = async () => {
-      setLoading(true);
       try {
         let q;
         if (selectedCategory === 'all') {
@@ -45,42 +42,33 @@ const Books = () => {
         setBooks(booksData);
       } catch (error) {
         console.error("Error fetching books:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchBooks();
-  }, [category, selectedCategory]);  
+  }, [category, selectedCategory]);
 
-  const handleCategoryChange = (event) => {
-    setSelectedCategory(event.target.value);
+  const handlePriceFilter = () => {
+    console.log('Filtering by price range:', priceRange);
   };
-
-  const filteredBooks = books.filter((book) =>
-    book.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="books-page">
-      {/* Breadcrumb Navigation */}
       <div className="breadcrumb">
         <Link to="/">Home</Link>
         <span>›</span>
         <span className="current">{categoryNames[selectedCategory]}</span>
       </div>
 
-      {/* Category Title */}
       <h1 className="category-title">{categoryNames[selectedCategory]}</h1>
 
       <div className="books-container">
-        {/* Sidebar Filters */}
         <div className="sidebar">
           <div className="filter-section">
             <h3>Filter by price</h3>
             <div className="price-range">
               <span>Price: ${priceRange[0]} — ${priceRange[1]}</span>
-              <button className="filter-button">FILTER</button>
+              <button className="filter-button" onClick={handlePriceFilter}>FILTER</button>
             </div>
           </div>
 
@@ -101,10 +89,9 @@ const Books = () => {
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="main-content">
           <div className="books-header">
-            <p>Showing all {filteredBooks.length} results</p>
+            <p>Showing all {books.length} results</p>
             <div className="view-options">
               <button className="grid-view">
                 <svg width="16" height="16" viewBox="0 0 16 16">
@@ -132,7 +119,7 @@ const Books = () => {
           </div>
 
           <div className="books-grid">
-            {filteredBooks.map((book) => (
+            {books.map((book) => (
               <div key={book.id} className="book-card">
                 <div className="book-image">
                   {book.isHot && <span className="hot-label">HOT</span>}

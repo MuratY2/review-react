@@ -22,16 +22,14 @@ const About = () => {
       <div className="about-hero">
         <h1>About Us</h1>
       </div>
-
       <div className="about-content">
         <div className="welcome-section">
           <h6 className="welcome-subtitle">WELCOME</h6>
           <h2 className="welcome-title">Books are a uniquely portable magic</h2>
           <p className="welcome-text">
-          Lorem ipsum that packs a punch. For a new twist on an old classic, drop some Samuel L. Jackson filler text in your next project and Pulp Fictionize that shit.
+            Lorem ipsum that packs a punch. For a new twist on an old classic, drop some Samuel L. Jackson filler text in your next project and Pulp Fictionize that shit.
           </p>
         </div>
-
         <div className="video-container">
           <video
             ref={videoRef}
@@ -39,7 +37,7 @@ const About = () => {
             onClick={handlePlayPause}
             playsInline
           >
-            <source src="/AboutPageVideo.mp4" type="video/mp4" />
+            <source src="/images/Assets/AboutPageVideo.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           {!isPlaying && (
@@ -48,10 +46,9 @@ const About = () => {
             </button>
           )}
         </div>
-
         <div className="stats-section">
           <div className="stat-item">
-            <CountUp 
+            <CountUp
               start={0}
               end={600}
               duration={2.5}
@@ -60,9 +57,8 @@ const About = () => {
             />
             <p className="stat-label">ARTICLES</p>
           </div>
-
           <div className="stat-item">
-            <CountUp 
+            <CountUp
               start={0}
               end={40000}
               duration={2.5}
@@ -71,9 +67,8 @@ const About = () => {
             />
             <p className="stat-label">ACTIVE READERS</p>
           </div>
-
           <div className="stat-item">
-            <CountUp 
+            <CountUp
               start={0}
               end={18000}
               duration={2.5}
