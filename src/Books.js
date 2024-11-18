@@ -8,6 +8,7 @@ const Books = () => {
   const { category } = useParams();
   const [selectedCategory, setSelectedCategory] = useState(category || 'all');
   const [books, setBooks] = useState([]);
+  const [displayedBooks, setDisplayedBooks] = useState([]);
   const [priceRange, setPriceRange] = useState([30, 60]);
 
   const categoryNames = {
@@ -22,8 +23,6 @@ const Books = () => {
   };
 
   useEffect(() => {
-    setSelectedCategory(category || 'all');
-
     const fetchBooks = async () => {
       try {
         let q;
@@ -40,16 +39,27 @@ const Books = () => {
         const querySnapshot = await getDocs(q);
         const booksData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setBooks(booksData);
+        setDisplayedBooks(booksData);
       } catch (error) {
         console.error("Error fetching books:", error);
       }
     };
 
+    setSelectedCategory(category || 'all');
     fetchBooks();
   }, [category, selectedCategory]);
 
   const handlePriceFilter = () => {
-    console.log('Filtering by price range:', priceRange);
+    const filteredBooks = books.filter(book => {
+      const price = parseFloat(book.price);
+      return price >= priceRange[0] && price <= priceRange[1];
+    });
+    setDisplayedBooks(filteredBooks);
+  };
+
+  const handlePriceRangeChange = (newRange) => {
+    setPriceRange(newRange);
+    handlePriceFilter();
   };
 
   return (
@@ -68,7 +78,12 @@ const Books = () => {
             <h3>Filter by price</h3>
             <div className="price-range">
               <span>Price: ${priceRange[0]} — ${priceRange[1]}</span>
-              <button className="filter-button" onClick={handlePriceFilter}>FILTER</button>
+              <button 
+                className="filter-button" 
+                onClick={handlePriceFilter}
+              >
+                FILTER
+              </button>
             </div>
           </div>
 
@@ -81,7 +96,7 @@ const Books = () => {
                     className={selectedCategory === key ? 'active' : ''}
                     onClick={() => setSelectedCategory(key)}
                   >
-                    {name} ({books.filter(book => book.category === key).length})
+                    {name} ({displayedBooks.filter(book => book.category === key).length})
                   </button>
                 </li>
               ))}
@@ -91,7 +106,7 @@ const Books = () => {
 
         <div className="main-content">
           <div className="books-header">
-            <p>Showing all {books.length} results</p>
+            <p>Showing all {displayedBooks.length} results</p>
             <div className="view-options">
               <button className="grid-view">
                 <svg width="16" height="16" viewBox="0 0 16 16">
@@ -119,7 +134,7 @@ const Books = () => {
           </div>
 
           <div className="books-grid">
-            {books.map((book) => (
+            {displayedBooks.map((book) => (
               <div key={book.id} className="book-card">
                 <div className="book-image">
                   {book.isHot && <span className="hot-label">HOT</span>}
