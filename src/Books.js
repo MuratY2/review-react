@@ -9,7 +9,6 @@ const Books = () => {
   const [selectedCategory, setSelectedCategory] = useState(category || 'all');
   const [books, setBooks] = useState([]);
   const [displayedBooks, setDisplayedBooks] = useState([]);
-  // Instead of state, use a constant for price range since we're not changing it
   const PRICE_RANGE = [30, 60];
 
   const categoryNames = {
@@ -131,7 +130,11 @@ const Books = () => {
 
           <div className="books-grid">
             {displayedBooks.map((book) => (
-              <div key={book.id} className="book-card">
+              <Link 
+                to={`/bookdetail/${book.id}`} 
+                key={book.id} 
+                className="book-card"
+              >
                 <div className="book-image">
                   {book.isHot && <span className="hot-label">HOT</span>}
                   <img src={book.coverImageUrl} alt={`${book.title} cover`} />
@@ -141,7 +144,7 @@ const Books = () => {
                   <p className="author">By {book.author}</p>
                   <p className="price">${book.price}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

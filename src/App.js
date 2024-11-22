@@ -17,6 +17,7 @@ import BookUpload from './BookUpload';
 import BookList from './BookList';
 import BookApproval from './BookApproval';
 import Profile from './Profile';
+import BookDetail from './BookDetail';
 
 const FeaturedBooks = () => {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -435,6 +436,7 @@ const App = () => {
           <Route path="/bookupload" element={<BookUpload />} />
           <Route path="/bookapproval" element={<BookApproval />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/bookdetail/:bookId" element={<BookDetail />} />
         </Routes>
       </main>
     </div>
