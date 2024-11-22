@@ -9,7 +9,8 @@ const Books = () => {
   const [selectedCategory, setSelectedCategory] = useState(category || 'all');
   const [books, setBooks] = useState([]);
   const [displayedBooks, setDisplayedBooks] = useState([]);
-  const [priceRange, setPriceRange] = useState([30, 60]);
+  // Instead of state, use a constant for price range since we're not changing it
+  const PRICE_RANGE = [30, 60];
 
   const categoryNames = {
     'all': 'All Books',
@@ -52,14 +53,9 @@ const Books = () => {
   const handlePriceFilter = () => {
     const filteredBooks = books.filter(book => {
       const price = parseFloat(book.price);
-      return price >= priceRange[0] && price <= priceRange[1];
+      return price >= PRICE_RANGE[0] && price <= PRICE_RANGE[1];
     });
     setDisplayedBooks(filteredBooks);
-  };
-
-  const handlePriceRangeChange = (newRange) => {
-    setPriceRange(newRange);
-    handlePriceFilter();
   };
 
   return (
@@ -77,7 +73,7 @@ const Books = () => {
           <div className="filter-section">
             <h3>Filter by price</h3>
             <div className="price-range">
-              <span>Price: ${priceRange[0]} — ${priceRange[1]}</span>
+              <span>Price: ${PRICE_RANGE[0]} — ${PRICE_RANGE[1]}</span>
               <button 
                 className="filter-button" 
                 onClick={handlePriceFilter}
@@ -108,7 +104,7 @@ const Books = () => {
           <div className="books-header">
             <p>Showing all {displayedBooks.length} results</p>
             <div className="view-options">
-              <button className="grid-view">
+              <button className="grid-view" aria-label="Grid view">
                 <svg width="16" height="16" viewBox="0 0 16 16">
                   <rect x="0" y="0" width="7" height="7"/>
                   <rect x="9" y="0" width="7" height="7"/>
@@ -116,7 +112,7 @@ const Books = () => {
                   <rect x="9" y="9" width="7" height="7"/>
                 </svg>
               </button>
-              <button className="list-view">
+              <button className="list-view" aria-label="List view">
                 <svg width="16" height="16" viewBox="0 0 16 16">
                   <rect x="0" y="0" width="16" height="4"/>
                   <rect x="0" y="6" width="16" height="4"/>
