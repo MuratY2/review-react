@@ -1,4 +1,3 @@
-// File: src/BookUpload.js
 import React, { useState } from 'react';
 import { storage, db } from './firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -7,9 +6,10 @@ import axios from 'axios';
 
 const BookUpload = () => {
   const [isbn, setIsbn] = useState('');
-  const [author, setAuthor] = useState(''); 
+  const [author, setAuthor] = useState('');
   const [file, setFile] = useState(null);
-  const [category, setCategory] = useState('');  
+  const [category, setCategory] = useState('');
+  const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleFileChange = (event) => {
@@ -17,30 +17,31 @@ const BookUpload = () => {
   };
 
   const handleCategoryChange = (event) => {
-    setCategory(event.target.value);  
+    setCategory(event.target.value);
   };
 
   const fetchBookData = async (isbn) => {
     try {
-      console.log("Fetching data for ISBN:", isbn);
-      const response = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
+      const response = await axios.get(
+        `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
+      );
       const bookData = response.data[`ISBN:${isbn}`];
-  
-      console.log("Fetched book data:", bookData); 
-  
+
       if (!bookData) {
         alert("Invalid ISBN or book not found.");
         return null;
       }
-  
+
       const title = bookData.title || 'Unknown Title';
-      const coverImageUrl = bookData.cover ? bookData.cover.medium : ''; 
-      const description = bookData.description ? bookData.description.value || bookData.description : 'No description available'; 
-  
+      const coverImageUrl = bookData.cover ? bookData.cover.medium : '';
+      const fetchedDescription = bookData.description
+        ? bookData.description.value || bookData.description
+        : 'No description available';
+
       return {
         title,
         coverImageUrl,
-        description,
+        description: fetchedDescription,
       };
     } catch (error) {
       console.error("Error fetching book data:", error);
@@ -51,7 +52,7 @@ const BookUpload = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+
     if (!category) {
       alert('Please select a category.');
       return;
@@ -59,6 +60,11 @@ const BookUpload = () => {
 
     if (!author) {
       alert('Please enter the author.');
+      return;
+    }
+
+    if (description.replace(/\s/g, '').length < 200) {
+      alert('Description must be at least 200 characters excluding spaces.');
       return;
     }
 
@@ -92,20 +98,21 @@ const BookUpload = () => {
 
       await addDoc(collection(db, 'books_pending'), {
         title: bookData.title,
-        author, 
-        description: bookData.description,
+        author,
+        description,
         isbn,
         coverImageUrl,
-        category, 
+        category,
         createdAt: new Date(),
         status: 'pending',
       });
 
       alert('Book uploaded successfully and is awaiting admin approval.');
       setIsbn('');
-      setAuthor(''); 
+      setAuthor('');
       setFile(null);
-      setCategory('');  
+      setCategory('');
+      setDescription('');
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -114,7 +121,10 @@ const BookUpload = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', width: '300px', margin: '0 auto' }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: 'flex', flexDirection: 'column', width: '300px', margin: '0 auto' }}
+    >
       <label>
         ISBN:
         <input type="text" value={isbn} onChange={(e) => setIsbn(e.target.value)} required />
@@ -124,7 +134,7 @@ const BookUpload = () => {
         Author:
         <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} required />
       </label>
-      
+
       <label>
         Category:
         <select value={category} onChange={handleCategoryChange} required>
@@ -140,10 +150,21 @@ const BookUpload = () => {
       </label>
 
       <label>
+        Description:
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+          placeholder="Enter a detailed description (at least 200 characters)"
+          style={{ resize: 'none', height: '100px' }}
+        />
+      </label>
+
+      <label>
         Cover Image (optional):
         <input type="file" onChange={handleFileChange} />
       </label>
-      
+
       <button type="submit" disabled={loading}>
         {loading ? 'Uploading...' : 'Upload Book'}
       </button>
