@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'; // Added Navigate for redirection
 import { UserOutlined, MenuOutlined, CloseOutlined } from '@ant-design/icons';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
@@ -44,8 +44,8 @@ const FeaturedBooks = () => {
 
   const categories = ['All', 'Business', 'Financial', 'Programming'];
 
-  const filteredBooks = activeCategory === 'All' 
-    ? books 
+  const filteredBooks = activeCategory === 'All'
+    ? books
     : books.filter(book => book.category === activeCategory.toLowerCase());
 
   if (loading) {
@@ -56,7 +56,7 @@ const FeaturedBooks = () => {
     <section className="featured-books">
       <h6 className="featured-subtitle">FEATURED BOOKS</h6>
       <h2 className="featured-title">What Will You Discover?</h2>
-      
+
       <div className="category-filters">
         {categories.map(category => (
           <button
@@ -74,9 +74,9 @@ const FeaturedBooks = () => {
           filteredBooks.map(book => (
             <div key={book.id} className="book-card">
               {book.isHot && <span className="hot-tag">HOT</span>}
-              <img 
-                src={book.coverImageUrl} 
-                alt={book.title} 
+              <img
+                src={book.coverImageUrl}
+                alt={book.title}
                 className="book-image"
               />
               <div className="book-info">
@@ -98,7 +98,6 @@ const FeaturedBooks = () => {
   );
 };
 
-
 const EditorialReviews = () => {
   const reviews = [
     {
@@ -106,7 +105,7 @@ const EditorialReviews = () => {
       text: "Lorem ipsum that packs a punch. For a new twist on an old classic, drop some Samuel L. Jackson filler text in your next project and Pulp Fictionize that shit.",
       author: "Mohamoud Arafa",
       role: "Project Manager",
-      image: "/path-to-image/profile1.jpg" 
+      image: "/path-to-image/profile1.jpg"
     },
     {
       id: 2,
@@ -164,16 +163,16 @@ const BestOfMonth = () => {
     const fetchBooks = async () => {
       setLoading(true);
       try {
-        const q = query(collection(db, 'books_pending'), 
+        const q = query(collection(db, 'books_pending'),
           where('status', '==', 'approved'),
-          limit(4) 
+          limit(4)
         );
         const querySnapshot = await getDocs(q);
         const booksData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
+
         if (booksData.length > 0) {
-          setMainBook(booksData[0]); 
-          setRecommendedBooks(booksData.slice(1)); 
+          setMainBook(booksData[0]);
+          setRecommendedBooks(booksData.slice(1));
         }
       } catch (error) {
         console.error("Error fetching books:", error);
@@ -289,10 +288,17 @@ const App = () => {
       'Medicine': 'medicine',
       'Audio Books': 'audio-books'
     };
-    
+
     const formattedCategory = categoryMapping[category];
     navigate(`/books/${formattedCategory}`);
     setActiveMenuItem('/books');
+  };
+
+  const ProtectedRoute = ({ children }) => {
+    if (!user) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
   };
 
   return (
@@ -302,35 +308,45 @@ const App = () => {
           <span className="logo-part1">Author</span>
           <span className="logo-part2">Factory</span>
         </Link>
-        
+
         <button className="mobile-menu-button" onClick={toggleMobileMenu}>
           {isMobileMenuOpen ? <CloseOutlined /> : <MenuOutlined />}
         </button>
 
         <nav className={`menu ${isMobileMenuOpen ? 'menu-mobile-open' : ''}`}>
-          <Link to="/books" 
-                className={`menu-item ${activeMenuItem === '/books' ? 'active' : ''}`} 
-                onClick={() => handleMenuClick('/books')}>
+          <Link
+            to="/books"
+            className={`menu-item ${activeMenuItem === '/books' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('/books')}
+          >
             Books
           </Link>
-          <Link to="/about" 
-                className={`menu-item ${activeMenuItem === '/about' ? 'active' : ''}`} 
-                onClick={() => handleMenuClick('/about')}>
+          <Link
+            to="/about"
+            className={`menu-item ${activeMenuItem === '/about' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('/about')}
+          >
             About
           </Link>
-          <Link to="/contact" 
-                className={`menu-item ${activeMenuItem === '/contact' ? 'active' : ''}`} 
-                onClick={() => handleMenuClick('/contact')}>
+          <Link
+            to="/contact"
+            className={`menu-item ${activeMenuItem === '/contact' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('/contact')}
+          >
             Contact
           </Link>
-          <Link to="/event" 
-                className={`menu-item ${activeMenuItem === '/event' ? 'active' : ''}`} 
-                onClick={() => handleMenuClick('/event')}>
+          <Link
+            to="/event"
+            className={`menu-item ${activeMenuItem === '/event' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('/event')}
+          >
             Event
           </Link>
-          <Link to="/bookupload" 
-                className={`menu-item ${activeMenuItem === '/bookupload' ? 'active' : ''}`} 
-                onClick={() => handleMenuClick('/bookupload')}>
+          <Link
+            to="/bookupload"
+            className={`menu-item ${activeMenuItem === '/bookupload' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('/bookupload')}
+          >
             Upload
           </Link>
         </nav>
@@ -343,16 +359,26 @@ const App = () => {
             <div className="dropdown-menu">
               {user ? (
                 <>
-                  <Link to="/profile" className="dropdown-item">Profile</Link>
+                  <Link to="/profile" className="dropdown-item">
+                    Profile
+                  </Link>
                   {isAdmin && (
-                    <Link to="/bookapproval" className="dropdown-item">Book Approvals</Link>
+                    <Link to="/bookapproval" className="dropdown-item">
+                      Book Approvals
+                    </Link>
                   )}
-                  <button onClick={handleLogout} className="dropdown-item">Logout</button>
+                  <button onClick={handleLogout} className="dropdown-item">
+                    Logout
+                  </button>
                 </>
               ) : (
                 <>
-                  <Link to="/signup" className="dropdown-item">Sign Up</Link>
-                  <Link to="/login" className="dropdown-item">Login</Link>
+                  <Link to="/signup" className="dropdown-item">
+                    Sign Up
+                  </Link>
+                  <Link to="/login" className="dropdown-item">
+                    Login
+                  </Link>
                 </>
               )}
             </div>
@@ -363,77 +389,117 @@ const App = () => {
         <Routes>
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={(
-            <>
-              <section className="category-section">
-                <div className="category-header">
-                  <div className="titles">
-                    <h6 className="sub-title">Top Categories</h6>
-                    <h2 className="section-title">Explore Categories</h2>
+          <Route
+            path="/"
+            element={
+              <>
+                <section className="category-section">
+                  <div className="category-header">
+                    <div className="titles">
+                      <h6 className="sub-title">Top Categories</h6>
+                      <h2 className="section-title">Explore Categories</h2>
+                    </div>
+                    <Link
+                      to="/books"
+                      className="view-all"
+                      onClick={() => handleMenuClick('/books')}
+                    >
+                      View All →
+                    </Link>
                   </div>
-                  <Link to="/books" className="view-all" onClick={() => handleMenuClick('/books')}>View All →</Link>
-                </div>
-                <div className="categories-grid">
-                  <div className="category-column">
-                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Art & Design')}>
-                      <span className="category-icon" role="img" aria-label="pencil">
-                        ✏️
+                  <div className="categories-grid">
+                    <div className="category-column">
+                      <div
+                        className="category-card small"
+                        tabIndex="0"
+                        onClick={() => handleCategoryClick('Art & Design')}
+                      >
+                        <span className="category-icon" role="img" aria-label="pencil">
+                          ✏️
+                        </span>
+                        <h3>Art & Design</h3>
+                        <p>300 Books</p>
+                      </div>
+                      <div
+                        className="category-card small"
+                        tabIndex="0"
+                        onClick={() => handleCategoryClick('Business')}
+                      >
+                        <span className="category-icon" role="img" aria-label="chart">
+                          📊
+                        </span>
+                        <h3>Business</h3>
+                        <p>450 Books</p>
+                      </div>
+                    </div>
+                    <div
+                      className="category-card large"
+                      tabIndex="0"
+                      onClick={() => handleCategoryClick('IT & Technology')}
+                    >
+                      <span className="category-icon" role="img" aria-label="computer">
+                        💻
                       </span>
-                      <h3>Art & Design</h3>
+                      <h3>IT & Technology</h3>
+                      <p>900 Books</p>
+                    </div>
+                    <div className="category-column">
+                      <div
+                        className="category-card small"
+                        tabIndex="0"
+                        onClick={() => handleCategoryClick('Financial')}
+                      >
+                        <span className="category-icon" role="img" aria-label="money bag">
+                          💰
+                        </span>
+                        <h3>Financial</h3>
+                        <p>700 Books</p>
+                      </div>
+                      <div
+                        className="category-card small"
+                        tabIndex="0"
+                        onClick={() => handleCategoryClick('Medicine')}
+                      >
+                        <span className="category-icon" role="img" aria-label="hospital">
+                          🏥
+                        </span>
+                        <h3>Medicine</h3>
+                        <p>1000 Books</p>
+                      </div>
+                    </div>
+                    <div
+                      className="category-card large"
+                      tabIndex="0"
+                      onClick={() => handleCategoryClick('Audio Books')}
+                    >
+                      <span className="category-icon" role="img" aria-label="headphones">
+                        🎧
+                      </span>
+                      <h3>Audio Books</h3>
                       <p>300 Books</p>
                     </div>
-                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Business')}>
-                      <span className="category-icon" role="img" aria-label="chart">
-                        📊
-                      </span>
-                      <h3>Business</h3>
-                      <p>450 Books</p>
-                    </div>
                   </div>
-                  <div className="category-card large" tabIndex="0" onClick={() => handleCategoryClick('IT & Technology')}>
-                    <span className="category-icon" role="img" aria-label="computer">
-                      💻
-                    </span>
-                    <h3>IT & Technology</h3>
-                    <p>900 Books</p>
-                  </div>
-                  <div className="category-column">
-                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Financial')}>
-                      <span className="category-icon" role="img" aria-label="money bag">
-                        💰
-                      </span>
-                      <h3>Financial</h3>
-                      <p>700 Books</p>
-                    </div>
-                    <div className="category-card small" tabIndex="0" onClick={() => handleCategoryClick('Medicine')}>
-                      <span className="category-icon" role="img" aria-label="hospital">
-                        🏥
-                      </span>
-                      <h3>Medicine</h3>
-                      <p>1000 Books</p>
-                    </div>
-                  </div>
-                  <div className="category-card large" tabIndex="0" onClick={() => handleCategoryClick('Audio Books')}>
-                    <span className="category-icon" role="img" aria-label="headphones">
-                      🎧
-                    </span>
-                    <h3>Audio Books</h3>
-                    <p>300 Books</p>
-                  </div>
-                </div>
-              </section>
-              <FeaturedBooks />
-              <EditorialReviews />
-              <BestOfMonth />
-            </>
-          )} />
+                </section>
+                <FeaturedBooks />
+                <EditorialReviews />
+                <BestOfMonth />
+              </>
+            }
+          />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/event" element={<Event />} />
           <Route path="/books" element={<Books />} />
           <Route path="/books/:category" element={<Books />} />
           <Route path="/booklist" element={<BookList />} />
-          <Route path="/bookupload" element={<BookUpload />} />
+          <Route
+            path="/bookupload"
+            element={
+              <ProtectedRoute>
+                <BookUpload />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/bookapproval" element={<BookApproval />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/bookdetail/:bookId" element={<BookDetail />} />
