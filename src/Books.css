@@ -168,12 +168,6 @@
   margin-bottom: 5px;
 }
 
-.book-info .price {
-  color: #ff4444;
-  font-weight: 500;
-  font-size: 18px;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .books-container {

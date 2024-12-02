@@ -1,8 +1,8 @@
 
-
-.signup-card {
+  
+.login-card {
     background: #D8E3E9;
-    padding: 0 3rem 2rem; /* Reduced bottom padding */
+    padding: 0 3rem 2rem;
     border-radius: 2.5rem;
     box-shadow: 0 20px 40px rgba(124, 58, 237, 0.1);
     width: 1500px;
@@ -10,13 +10,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: -10px; /* Reduced top margin */
+    margin-top: -10px;
+    
 }
 
-
 .rive-container {
-    width: 200px; /* Reduced from 280px */
-    height: 200px; /* Reduced from 280px */
+    width: 200px;
+    height: 200px;
     margin: 0 auto;
     position: relative;
 }
@@ -29,32 +29,31 @@
     left: 0;
 }
 
-
-.signup-header {
+.login-header {
     text-align: center;
-    margin-bottom: 1.5rem; /* Reduced from 2rem */
+    margin-bottom: 1.5rem;
 }
 
-.signup-header h2 {
-    font-size: 2.2rem; /* Reduced from 2.5rem */
+.login-header h2 {
+    font-size: 2.2rem;
     font-weight: 700;
-    margin-bottom: 0.3rem; /* Reduced from 0.5rem */
+    margin-bottom: 0.3rem;
     color: #1a1a1a;
 }
 
-.signup-subtitle {
+.login-subtitle {
     font-size: 1rem;
     color: #666;
-    margin-bottom: 1.5rem; /* Reduced from 2rem */
+    margin-bottom: 1.5rem;
 }
 
 .ant-form {
     width: 100%;
-    padding-bottom: 100px; /* Reduced from 200px */
+    padding-bottom: 100px;
 }
 
 .ant-form-item {
-    margin-bottom: 1rem; /* Reduced from 1.5rem */
+    margin-bottom: 1rem;
 }
 
 .ant-form-item-label {
@@ -64,7 +63,7 @@
 .ant-form-item-label > label {
     font-size: 1rem;
     color: #4a4a4a;
-    height: 24px; /* Reduced from 28px */
+    height: 24px;
     display: flex;
     align-items: center;
     padding-left: 380px;
@@ -75,8 +74,17 @@
     margin-right: 4px;
 }
 
+.password-input-container {
+    position: relative;
+    width: 46%;
+    margin-left: 380px;
+}
 
-
+.password-input-container .styled-input {
+    width: 100%;
+    margin-left: -8px;
+    padding-right: 2.5rem;
+}
 
 .password-toggle-btn {
     position: absolute;
@@ -102,16 +110,16 @@
 }
 
 .styled-input {
-    height: 48px; /* Reduced from 56px */
+    height: 48px;
     border-radius: 1.5rem;
     border: 1px solid #e2e8f0;
     padding: 0 1.5rem;
     font-size: 1rem;
     background: #f8f9fa;
     width: 50%;
+    
     transition: all 0.2s ease;
 }
-
 
 .styled-input:focus {
     background: white;
@@ -119,11 +127,9 @@
     box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
 }
 
-
-
-.signup-button {
+.login-button {
     margin-left: 600px;
-    height: 48px; /* Reduced from 56px */
+    height: 48px;
     width: 20%;
     border-radius: 1.5rem;
     font-size: 1.1rem;
@@ -131,7 +137,7 @@
     background: #7c3aed;
     border: none;
     color: white;
-    margin-top: 0.75rem; /* Reduced from 1rem */
+    margin-top: 0.75rem;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
@@ -139,31 +145,31 @@
     align-self: center;
 }
 
-.signup-button:hover {
+.login-button:hover {
     background: #6d28d9;
     transform: translateY(-2px);
     box-shadow: 0 8px 16px rgba(124, 58, 237, 0.2);
 }
 
-.signup-button:active {
+.login-button:active {
     transform: translateY(0);
 }
 
-.login-link {
-    margin-top: 1rem; /* Reduced from 1.5rem */
+.signup-link {
+    margin-top: 1rem;
     font-size: 1rem;
     color: #666;
     text-align: center;
 }
 
-.login-link a {
+.signup-link a {
     color: #7c3aed;
     font-weight: 500;
     text-decoration: none;
     margin-left: 4px;
 }
 
-.login-link a:hover {
+.signup-link a:hover {
     text-decoration: underline;
 }
 
@@ -172,7 +178,7 @@
     color: #ef4444;
     font-size: 0.85rem;
     margin-top: 0.25rem;
-    padding-left: 1rem;
+    padding-left: 380px;
 }
 
 .ant-form-item-has-error .styled-input {
@@ -183,11 +189,11 @@
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 }
 
-
 .error-message {
     color: #ef4444;
     font-size: 0.85rem;
     margin-top: 0.25rem;
+    padding-left: 380px;
 }
 
 .input-error {
@@ -198,13 +204,13 @@
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 }
 
-
+/* Responsive styles */
 @media (max-width: 640px) {
-    .signup-container {
+    .login-container {
         padding: 0.75rem;
     }
 
-    .signup-card {
+    .login-card {
         padding: 0 1.25rem 1.5rem;
         width: 100%;
     }
@@ -215,12 +221,12 @@
         margin-top: -40px;
     }
 
-    .signup-header h2 {
+    .login-header h2 {
         font-size: 1.8rem;
     }
 
     .styled-input,
-    .signup-button {
+    .login-button {
         height: 44px;
         margin-left: 0;
         width: 100%;
@@ -235,7 +241,11 @@
         width: 100%;
     }
 
-    .error-message {
+    .ant-form-item-label > label,
+    .error-message,
+    .ant-form-item-explain-error {
         padding-left: 0;
     }
 }
+
+/* Animation keyframes can be added here if needed */

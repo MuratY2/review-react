@@ -1,15 +1,35 @@
-// File: src/Profile.js
-import React, { useState, useEffect } from 'react';
-import { auth, db } from './firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import React, { useState, useEffect, useRef } from 'react';
+import { auth, db, storage } from './firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { UserCircle, Upload, BookOpen, Mail, Shield, Pencil } from 'lucide-react';
+import './Profile.css';
 
 const Profile = () => {
   const [userData, setUserData] = useState({
     email: '',
+    username: '',
     role: '',
+    avatarUrl: '',
   });
   const [loading, setLoading] = useState(true);
+  const [authorVerification, setAuthorVerification] = useState({
+    idImage: null,
+    bio: '',
+    website: '',
+    expertise: '',
+    submitted: false,
+  });
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,17 +38,13 @@ const Profile = () => {
         try {
           const userRef = doc(db, 'users', currentUser.uid);
           const userDoc = await getDoc(userRef);
-
           if (userDoc.exists()) {
             const data = userDoc.data();
             setUserData({
               email: data.email || currentUser.email,
+              username: data.username || '',
               role: data.role || 'user',
-            });
-          } else {
-            setUserData({
-              email: currentUser.email,
-              role: 'user',
+              avatarUrl: data.avatarUrl || '',
             });
           }
         } catch (error) {
@@ -39,20 +55,378 @@ const Profile = () => {
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, [navigate]);
 
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRoleClick = (selectedRole) => {
+    if (selectedRole === 'author' && userData.role !== 'author') {
+      // Scroll to author verification section
+      const verificationSection = document.querySelector('.author-verification');
+      if (verificationSection) {
+        verificationSection.scrollIntoView({ behavior: 'smooth' });
+      }
+      // Show helper message
+      alert('Please complete the Author Verification form below to become an author.');
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAuthorVerification(prev => ({
+        ...prev,
+        idImage: file
+      }));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleProfileUpdate = async () => {
+    try {
+      setLoading(true);
+      const user = auth.currentUser;
+      const userRef = doc(db, 'users', user.uid);
+
+      if (avatarFile) {
+        const avatarRef = ref(storage, `avatars/${user.uid}`);
+        await uploadBytes(avatarRef, avatarFile);
+        const avatarUrl = await getDownloadURL(avatarRef);
+        await updateDoc(userRef, { avatarUrl });
+        setUserData(prev => ({ ...prev, avatarUrl }));
+      }
+
+      if (newUsername) {
+        await updateProfile(user, { displayName: newUsername });
+        await updateDoc(userRef, { username: newUsername });
+        setUserData(prev => ({ ...prev, username: newUsername }));
+      }
+
+      setEditingProfile(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAccountUpdate = async () => {
+    try {
+      setLoading(true);
+      const user = auth.currentUser;
+      const userRef = doc(db, 'users', user.uid);
+
+      if (newEmail) {
+        await user.updateEmail(newEmail);
+        await updateDoc(userRef, { email: newEmail });
+        setUserData(prev => ({ ...prev, email: newEmail }));
+      }
+
+      setEditingAccount(false);
+    } catch (error) {
+      console.error('Error updating account:', error);
+      alert('Failed to update account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAuthorSubmission = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('No user logged in');
+
+      const idImageRef = ref(storage, `author-verification/${user.uid}/id-image`);
+      await uploadBytes(idImageRef, authorVerification.idImage);
+      const idImageUrl = await getDownloadURL(idImageRef);
+
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        authorVerificationRequest: {
+          status: 'pending',
+          submitDate: new Date(),
+          bio: authorVerification.bio,
+          website: authorVerification.website,
+          expertise: authorVerification.expertise,
+          idImageUrl: idImageUrl,
+        }
+      });
+
+      setAuthorVerification(prev => ({
+        ...prev,
+        submitted: true
+      }));
+
+    } catch (error) {
+      console.error('Error submitting author verification:', error);
+      alert('Error submitting verification. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
-    return <p>Loading profile...</p>;
+    return <div className="loading-spinner">Loading profile...</div>;
   }
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
-      <h1>Profile</h1>
-      <p><strong>Email:</strong> {userData.email}</p>
-      <p><strong>Role:</strong> {userData.role}</p>
+    <div className="profile-container">
+      <div className="profile-grid">
+        {/* Left Box */}
+        <div className="profile-card user-info">
+          <div className="card-header">
+            <UserCircle size={50} className="header-icon" />
+            <h2>{userData.username}</h2>
+            <button 
+              className="edit-button"
+              onClick={() => setEditingProfile(!editingProfile)}
+            >
+              <Pencil size={16} />
+              Edit
+            </button>
+          </div>
+          
+          {editingProfile ? (
+            <div className="profile-content">
+              <div className="avatar-section">
+                <div className="avatar-preview">
+                  {avatarPreview ? (
+                    <img src={avatarPreview} alt="Preview" />
+                  ) : userData.avatarUrl ? (
+                    <img src={userData.avatarUrl} alt="Current" />
+                  ) : (
+                    <UserCircle size={80} />
+                  )}
+                </div>
+                <button 
+                  className="change-avatar-button"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload size={16} />
+                  Change Photo
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleAvatarChange}
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                />
+              </div>
+              <input
+                type="text"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                placeholder="New username"
+                className="edit-input"
+              />
+              <div className="edit-actions">
+                <button 
+                  className="save-button" 
+                  onClick={handleProfileUpdate}
+                  disabled={loading}
+                >
+                  Save
+                </button>
+                <button 
+                  className="cancel-button"
+                  onClick={() => {
+                    setEditingProfile(false);
+                    setNewUsername('');
+                    setAvatarFile(null);
+                    setAvatarPreview(null);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="avatar-section">
+              {userData.avatarUrl ? (
+                <img src={userData.avatarUrl} alt="Profile" className="avatar-display" />
+              ) : (
+                <UserCircle size={80} className="avatar-display" />
+              )}
+              <span className="role-badge">{userData.role}</span>
+            </div>
+          )}
+        </div>
 
+        {/* Right Box */}
+        <div className="profile-card account-info">
+          <div className="card-header">
+            <Mail size={24} className="header-icon" />
+            <h2>Account Information</h2>
+            <button 
+              className="edit-button"
+              onClick={() => setEditingAccount(!editingAccount)}
+            >
+              <Pencil size={16} />
+              Edit
+            </button>
+          </div>
+
+          <div className="info-content">
+            {editingAccount ? (
+              <>
+                <div className="edit-field">
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    placeholder="New email"
+                    className="edit-input"
+                  />
+                </div>
+                <div className="edit-actions">
+                  <button 
+                    className="save-button" 
+                    onClick={handleAccountUpdate}
+                    disabled={loading}
+                  >
+                    Save
+                  </button>
+                  <button 
+                    className="cancel-button"
+                    onClick={() => {
+                      setEditingAccount(false);
+                      setNewEmail('');
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="info-item">
+                  <label>Email</label>
+                  <p>{userData.email}</p>
+                </div>
+                <div className="info-item">
+                  <label>Username</label>
+                  <p>{userData.username}</p>
+                </div>
+                <div className="info-item">
+                  <label>Account Type</label>
+                  <div className="role-selection">
+                    <button
+                      className={`role-button ${userData.role === 'user' ? 'active' : ''}`}
+                      onClick={() => handleRoleClick('reader')}
+                    >
+                      Reader
+                    </button>
+                    <button
+                      className={`role-button ${userData.role === 'author' ? 'active' : ''}`}
+                      onClick={() => handleRoleClick('author')}
+                    >
+                      Author {userData.role !== 'author' && <span className="verification-required"></span>}
+                    </button>
+                  </div>
+                 
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Box */}
+        <div className="profile-card author-verification">
+          <div className="card-header">
+            <BookOpen size={24} className="header-icon" />
+            <h2>Author Verification</h2>
+          </div>
+          <form className="verification-form" onSubmit={handleAuthorSubmission}>
+            <div className="form-group">
+              <label>Professional Bio</label>
+              <textarea
+                placeholder="Tell us about your professional background..."
+                value={authorVerification.bio}
+                onChange={(e) => setAuthorVerification(prev => ({
+                  ...prev,
+                  bio: e.target.value
+                }))}
+                rows={4}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Area of Expertise</label>
+              <input
+                type="text"
+                placeholder="e.g., Computer Science, Mathematics"
+                value={authorVerification.expertise}
+                onChange={(e) => setAuthorVerification(prev => ({
+                  ...prev,
+                  expertise: e.target.value
+                }))}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Professional Website/Portfolio</label>
+              <input
+                type="url"
+                placeholder="https://your-website.com"
+                value={authorVerification.website}
+                onChange={(e) => setAuthorVerification(prev => ({
+                  ...prev,
+                  website: e.target.value
+                }))}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>ID Verification</label>
+              <button 
+                type="button" 
+                className="upload-button"
+                onClick={() => document.getElementById('id-upload').click()}
+              >
+                <Upload size={20} />
+                Upload ID
+              </button>
+              <input
+                id="id-upload"
+                type="file"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+                accept="image/*"
+              />
+              {previewImage && (
+                <div className="image-preview">
+                  <img src={previewImage} alt="ID Preview" />
+                </div>
+              )}
+            </div>
+
+            <button type="submit" className="submit-button" disabled={loading}>
+              {loading ? 'Submitting...' : 'Submit for Verification'}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

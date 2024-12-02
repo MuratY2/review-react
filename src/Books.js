@@ -142,7 +142,6 @@ const Books = () => {
                 <div className="book-info">
                   <h3>{book.title}</h3>
                   <p className="author">By {book.author}</p>
-                  <p className="price">${book.price}</p>
                 </div>
               </Link>
             ))}
