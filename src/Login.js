@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRive, useStateMachineInput, Layout, Fit, Alignment } from 'rive-react';
 import { Form, Input, Button, Typography, notification } from 'antd';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
+
 import './Login.css';
 
 const { Title } = Typography;

@@ -4,7 +4,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { UserCircle, Upload, BookOpen, Mail, Shield, Pencil } from 'lucide-react';
+import { UserCircle, Upload, BookOpen, Mail, Pencil } from 'lucide-react';
 import './Profile.css';
 
 const Profile = () => {
