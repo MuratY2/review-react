@@ -4,7 +4,6 @@ import { doc, getDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot,
 import { db, auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Rate, Input, Button, List, Avatar, notification } from 'antd';
-import './BookDetail.css';
 
 const { TextArea } = Input;
 
@@ -64,19 +63,111 @@ const BookDetail = () => {
   }, [bookId]);
 
   const handleRating = async (value) => {
-    // ... (unchanged)
+    if (!user) {
+      notification.warning({
+        message: 'Login Required',
+        description: 'Please log in to rate the book.',
+      });
+      return;
+    }
+
+    try {
+      const bookRef = doc(db, 'books_pending', bookId);
+      const userRatingRef = doc(collection(db, 'books_pending', bookId, 'ratings'), user.uid);
+      const userRatingSnap = await getDoc(userRatingRef);
+
+      const bookSnap = await getDoc(bookRef);
+      if (!bookSnap.exists()) {
+        notification.error({
+          message: 'Error',
+          description: 'Book not found.',
+        });
+        return;
+      }
+
+      const bookData = bookSnap.data();
+      let { totalRating = 0, numberOfRatings = 0 } = bookData;
+
+      if (userRatingSnap.exists()) {
+        const previousRating = userRatingSnap.data().rating;
+        totalRating = totalRating - previousRating + value;
+
+        await updateDoc(userRatingRef, { rating: value });
+        notification.success({
+          message: 'Rating Updated',
+          description: `Your rating for "${book.title}" has been updated to ${value} stars.`,
+        });
+      } else {
+        totalRating += value;
+        numberOfRatings++;
+
+        await setDoc(userRatingRef, { rating: value });
+        notification.success({
+          message: 'Rating Submitted',
+          description: `You rated "${book.title}" ${value} stars.`,
+        });
+      }
+
+      const newAverageRating = totalRating / numberOfRatings;
+
+      await updateDoc(bookRef, {
+        totalRating,
+        numberOfRatings,
+        averageRating: newAverageRating,
+      });
+
+      setRating(value);
+      setAverageRating(newAverageRating);
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      notification.error({
+        message: 'Error',
+        description: 'There was an issue submitting your rating. Please try again.',
+      });
+    }
   };
 
   const handleAddComment = async () => {
-    // ... (unchanged)
+    if (!user) {
+      notification.warning({
+        message: 'Login Required',
+        description: 'Please log in to add a comment.',
+      });
+      return;
+    }
+
+    if (!newComment.trim()) {
+      notification.warning({
+        message: 'Empty Comment',
+        description: 'Comment cannot be empty.',
+      });
+      return;
+    }
+
+    setLoadingComment(true);
+    try {
+      const commentsRef = collection(db, 'books_pending', bookId, 'comments');
+      await addDoc(commentsRef, {
+        userId: user.uid,
+        userName: user.displayName || 'Anonymous',
+        content: newComment,
+        createdAt: new Date(),
+        likes: 0,
+      });
+      setNewComment('');
+      notification.success({
+        message: 'Comment Added',
+        description: 'Your comment was successfully added.',
+      });
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    } finally {
+      setLoadingComment(false);
+    }
   };
 
   if (loading) {
     return <p>Loading book details...</p>;
-  }
-
-  if (!book) {
-    return <p>Book not found.</p>;
   }
 
   return (
@@ -88,15 +179,10 @@ const BookDetail = () => {
 
         <div className="book-info">
           <h1 className="book-title">{book.title}</h1>
-          <p className="book-author">
-            <strong>Author:</strong> {book.author}
-          </p>
-          <p className="book-description">
-            <strong>Description:</strong> {book.description}
-          </p>
-          <p className="book-category">
-            <strong>Category:</strong> {book.category}
-          </p>
+          <p><strong>Author:</strong> {book.author}</p>
+          <p><strong>Description:</strong> {book.description}</p>
+          <p><strong>Price:</strong> ${book.price}</p>
+          <p><strong>Category:</strong> {book.category}</p>
 
           <div className="rating-section">
             <h3>Average Rating: {averageRating.toFixed(1)}</h3>
