@@ -19,7 +19,6 @@ const Profile = () => {
     idImage: null,
     bio: '',
     website: '',
-    expertise: '',
     submitted: false,
   });
   const [editingProfile, setEditingProfile] = useState(false);
@@ -143,12 +142,10 @@ const Profile = () => {
       const user = auth.currentUser;
       if (!user) throw new Error('No user logged in');
 
-      // Upload ID image to storage
       const idImageRef = ref(storage, `author-verification/${user.uid}/id-image`);
       await uploadBytes(idImageRef, authorVerification.idImage);
       const idImageUrl = await getDownloadURL(idImageRef);
 
-      // Add data to `authors_pending` collection
       const authorPendingRef = doc(db, 'authors_pending', user.uid);
       await setDoc(authorPendingRef, {
         userId: user.uid,
@@ -321,7 +318,11 @@ const Profile = () => {
                 </div>
                 <div className="info-item">
                   <label>Account Type</label>
-                  <p>{userData.role.charAt(0).toUpperCase() + userData.role.slice(1)}</p>
+                  <p>
+                    {userData.role === 'user'
+                      ? 'Reader'
+                      : userData.role.charAt(0).toUpperCase() + userData.role.slice(1)}
+                  </p>
                 </div>
               </>
             )}
@@ -329,71 +330,73 @@ const Profile = () => {
         </div>
 
         {/* Bottom Box */}
-        <div className="profile-card author-verification">
-          <div className="card-header">
-            <BookOpen size={24} className="header-icon" />
-            <h2>Author Verification</h2>
-          </div>
-          <form className="verification-form" onSubmit={handleAuthorSubmission}>
-            <div className="form-group">
-              <label>Professional Bio</label>
-              <textarea
-                placeholder="Tell us about your professional background..."
-                value={authorVerification.bio}
-                onChange={(e) =>
-                  setAuthorVerification((prev) => ({
-                    ...prev,
-                    bio: e.target.value,
-                  }))
-                }
-                rows={4}
-              />
+        {userData.role === 'user' && (
+          <div className="profile-card author-verification">
+            <div className="card-header">
+              <BookOpen size={24} className="header-icon" />
+              <h2>Author Verification</h2>
             </div>
+            <form className="verification-form" onSubmit={handleAuthorSubmission}>
+              <div className="form-group">
+                <label>Professional Bio</label>
+                <textarea
+                  placeholder="Tell us about your professional background..."
+                  value={authorVerification.bio}
+                  onChange={(e) =>
+                    setAuthorVerification((prev) => ({
+                      ...prev,
+                      bio: e.target.value,
+                    }))
+                  }
+                  rows={4}
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Professional Website/Portfolio</label>
-              <input
-                type="url"
-                placeholder="https://your-website.com"
-                value={authorVerification.website}
-                onChange={(e) =>
-                  setAuthorVerification((prev) => ({
-                    ...prev,
-                    website: e.target.value,
-                  }))
-                }
-              />
-            </div>
+              <div className="form-group">
+                <label>Professional Website/Portfolio</label>
+                <input
+                  type="url"
+                  placeholder="https://your-website.com"
+                  value={authorVerification.website}
+                  onChange={(e) =>
+                    setAuthorVerification((prev) => ({
+                      ...prev,
+                      website: e.target.value,
+                    }))
+                  }
+                />
+              </div>
 
-            <div className="form-group">
-              <label>ID Verification</label>
-              <button
-                type="button"
-                className="upload-button"
-                onClick={() => document.getElementById('id-upload').click()}
-              >
-                <Upload size={20} />
-                Upload ID
+              <div className="form-group">
+                <label>ID Verification</label>
+                <button
+                  type="button"
+                  className="upload-button"
+                  onClick={() => document.getElementById('id-upload').click()}
+                >
+                  <Upload size={20} />
+                  Upload ID
+                </button>
+                <input
+                  id="id-upload"
+                  type="file"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                />
+                {previewImage && (
+                  <div className="image-preview">
+                    <img src={previewImage} alt="ID Preview" />
+                  </div>
+                )}
+              </div>
+
+              <button type="submit" className="submit-button" disabled={loading}>
+                {loading ? 'Submitting...' : 'Submit for Verification'}
               </button>
-              <input
-                id="id-upload"
-                type="file"
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-                accept="image/*"
-              />
-              {previewImage && (
-                <div className="image-preview">
-                  <img src={previewImage} alt="ID Preview" />
-                </div>
-              )}
-            </div>
-
-            <button type="submit" className="submit-button" disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit for Verification'}
-            </button>
-          </form>
-        </div>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );
