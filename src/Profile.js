@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { auth, db, storage } from './firebase';
-import { doc, getDoc, updateDoc ,setDoc} from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -70,24 +70,12 @@ const Profile = () => {
     }
   };
 
-  const handleRoleClick = (selectedRole) => {
-    if (selectedRole === 'author' && userData.role !== 'author') {
-      // Scroll to author verification section
-      const verificationSection = document.querySelector('.author-verification');
-      if (verificationSection) {
-        verificationSection.scrollIntoView({ behavior: 'smooth' });
-      }
-      // Show helper message
-      alert('Please complete the Author Verification form below to become an author.');
-    }
-  };
-
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setAuthorVerification(prev => ({
+      setAuthorVerification((prev) => ({
         ...prev,
-        idImage: file
+        idImage: file,
       }));
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -108,13 +96,13 @@ const Profile = () => {
         await uploadBytes(avatarRef, avatarFile);
         const avatarUrl = await getDownloadURL(avatarRef);
         await updateDoc(userRef, { avatarUrl });
-        setUserData(prev => ({ ...prev, avatarUrl }));
+        setUserData((prev) => ({ ...prev, avatarUrl }));
       }
 
       if (newUsername) {
         await updateProfile(user, { displayName: newUsername });
         await updateDoc(userRef, { username: newUsername });
-        setUserData(prev => ({ ...prev, username: newUsername }));
+        setUserData((prev) => ({ ...prev, username: newUsername }));
       }
 
       setEditingProfile(false);
@@ -135,7 +123,7 @@ const Profile = () => {
       if (newEmail) {
         await user.updateEmail(newEmail);
         await updateDoc(userRef, { email: newEmail });
-        setUserData(prev => ({ ...prev, email: newEmail }));
+        setUserData((prev) => ({ ...prev, email: newEmail }));
       }
 
       setEditingAccount(false);
@@ -150,15 +138,17 @@ const Profile = () => {
   const handleAuthorSubmission = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       const user = auth.currentUser;
       if (!user) throw new Error('No user logged in');
-  
+
+      // Upload ID image to storage
       const idImageRef = ref(storage, `author-verification/${user.uid}/id-image`);
       await uploadBytes(idImageRef, authorVerification.idImage);
       const idImageUrl = await getDownloadURL(idImageRef);
-  
+
+      // Add data to `authors_pending` collection
       const authorPendingRef = doc(db, 'authors_pending', user.uid);
       await setDoc(authorPendingRef, {
         userId: user.uid,
@@ -170,12 +160,12 @@ const Profile = () => {
         status: 'pending',
         submitDate: new Date(),
       });
-  
+
       setAuthorVerification((prev) => ({
         ...prev,
         submitted: true,
       }));
-  
+
       alert('Author verification submitted successfully.');
     } catch (error) {
       console.error('Error submitting author verification:', error);
@@ -184,7 +174,6 @@ const Profile = () => {
       setLoading(false);
     }
   };
-  
 
   if (loading) {
     return <div className="loading-spinner">Loading profile...</div>;
@@ -198,7 +187,7 @@ const Profile = () => {
           <div className="card-header">
             <UserCircle size={50} className="header-icon" />
             <h2>{userData.username}</h2>
-            <button 
+            <button
               className="edit-button"
               onClick={() => setEditingProfile(!editingProfile)}
             >
@@ -206,7 +195,7 @@ const Profile = () => {
               Edit
             </button>
           </div>
-          
+
           {editingProfile ? (
             <div className="profile-content">
               <div className="avatar-section">
@@ -219,7 +208,7 @@ const Profile = () => {
                     <UserCircle size={80} />
                   )}
                 </div>
-                <button 
+                <button
                   className="change-avatar-button"
                   onClick={() => fileInputRef.current?.click()}
                 >
@@ -242,14 +231,14 @@ const Profile = () => {
                 className="edit-input"
               />
               <div className="edit-actions">
-                <button 
-                  className="save-button" 
+                <button
+                  className="save-button"
                   onClick={handleProfileUpdate}
                   disabled={loading}
                 >
                   Save
                 </button>
-                <button 
+                <button
                   className="cancel-button"
                   onClick={() => {
                     setEditingProfile(false);
@@ -279,7 +268,7 @@ const Profile = () => {
           <div className="card-header">
             <Mail size={24} className="header-icon" />
             <h2>Account Information</h2>
-            <button 
+            <button
               className="edit-button"
               onClick={() => setEditingAccount(!editingAccount)}
             >
@@ -302,14 +291,14 @@ const Profile = () => {
                   />
                 </div>
                 <div className="edit-actions">
-                  <button 
-                    className="save-button" 
+                  <button
+                    className="save-button"
                     onClick={handleAccountUpdate}
                     disabled={loading}
                   >
                     Save
                   </button>
-                  <button 
+                  <button
                     className="cancel-button"
                     onClick={() => {
                       setEditingAccount(false);
@@ -332,21 +321,7 @@ const Profile = () => {
                 </div>
                 <div className="info-item">
                   <label>Account Type</label>
-                  <div className="role-selection">
-                    <button
-                      className={`role-button ${userData.role === 'user' ? 'active' : ''}`}
-                      onClick={() => handleRoleClick('reader')}
-                    >
-                      Reader
-                    </button>
-                    <button
-                      className={`role-button ${userData.role === 'author' ? 'active' : ''}`}
-                      onClick={() => handleRoleClick('author')}
-                    >
-                      Author {userData.role !== 'author' && <span className="verification-required"></span>}
-                    </button>
-                  </div>
-                 
+                  <p>{userData.role.charAt(0).toUpperCase() + userData.role.slice(1)}</p>
                 </div>
               </>
             )}
@@ -365,15 +340,15 @@ const Profile = () => {
               <textarea
                 placeholder="Tell us about your professional background..."
                 value={authorVerification.bio}
-                onChange={(e) => setAuthorVerification(prev => ({
-                  ...prev,
-                  bio: e.target.value
-                }))}
+                onChange={(e) =>
+                  setAuthorVerification((prev) => ({
+                    ...prev,
+                    bio: e.target.value,
+                  }))
+                }
                 rows={4}
               />
             </div>
-
-
 
             <div className="form-group">
               <label>Professional Website/Portfolio</label>
@@ -381,17 +356,19 @@ const Profile = () => {
                 type="url"
                 placeholder="https://your-website.com"
                 value={authorVerification.website}
-                onChange={(e) => setAuthorVerification(prev => ({
-                  ...prev,
-                  website: e.target.value
-                }))}
+                onChange={(e) =>
+                  setAuthorVerification((prev) => ({
+                    ...prev,
+                    website: e.target.value,
+                  }))
+                }
               />
             </div>
 
             <div className="form-group">
               <label>ID Verification</label>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="upload-button"
                 onClick={() => document.getElementById('id-upload').click()}
               >

@@ -6,6 +6,8 @@ html {
     min-height: 100vh;
     background: #f8f9ff;
     padding: 2rem;
+    transform: scale(0.9);
+    margin-top: -6rem;
 }
 
 .profile-grid {
