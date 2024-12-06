@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { auth, db, storage } from './firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc ,setDoc} from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -150,32 +150,33 @@ const Profile = () => {
   const handleAuthorSubmission = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+  
     try {
       const user = auth.currentUser;
       if (!user) throw new Error('No user logged in');
-
+  
       const idImageRef = ref(storage, `author-verification/${user.uid}/id-image`);
       await uploadBytes(idImageRef, authorVerification.idImage);
       const idImageUrl = await getDownloadURL(idImageRef);
-
-      const userRef = doc(db, 'users', user.uid);
-      await updateDoc(userRef, {
-        authorVerificationRequest: {
-          status: 'pending',
-          submitDate: new Date(),
-          bio: authorVerification.bio,
-          website: authorVerification.website,
-          expertise: authorVerification.expertise,
-          idImageUrl: idImageUrl,
-        }
+  
+      const authorPendingRef = doc(db, 'authors_pending', user.uid);
+      await setDoc(authorPendingRef, {
+        userId: user.uid,
+        email: user.email,
+        username: userData.username || user.displayName || 'Anonymous',
+        bio: authorVerification.bio,
+        website: authorVerification.website,
+        idImageUrl: idImageUrl,
+        status: 'pending',
+        submitDate: new Date(),
       });
-
-      setAuthorVerification(prev => ({
+  
+      setAuthorVerification((prev) => ({
         ...prev,
-        submitted: true
+        submitted: true,
       }));
-
+  
+      alert('Author verification submitted successfully.');
     } catch (error) {
       console.error('Error submitting author verification:', error);
       alert('Error submitting verification. Please try again.');
@@ -183,6 +184,7 @@ const Profile = () => {
       setLoading(false);
     }
   };
+  
 
   if (loading) {
     return <div className="loading-spinner">Loading profile...</div>;
@@ -371,18 +373,7 @@ const Profile = () => {
               />
             </div>
 
-            <div className="form-group">
-              <label>Area of Expertise</label>
-              <input
-                type="text"
-                placeholder="e.g., Computer Science, Mathematics"
-                value={authorVerification.expertise}
-                onChange={(e) => setAuthorVerification(prev => ({
-                  ...prev,
-                  expertise: e.target.value
-                }))}
-              />
-            </div>
+
 
             <div className="form-group">
               <label>Professional Website/Portfolio</label>

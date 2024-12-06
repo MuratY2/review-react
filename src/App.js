@@ -18,6 +18,7 @@ import BookList from './BookList';
 import BookApproval from './BookApproval';
 import Profile from './Profile';
 import BookDetail from './BookDetail';
+import AuthorApproval from './AuthorApproval';
 
 const FeaturedBooks = () => {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -367,6 +368,11 @@ const App = () => {
                       Book Approvals
                     </Link>
                   )}
+                  {isAdmin && (
+                    <Link to="/authorapproval" className="dropdown-item">
+                      Author Approvals
+                    </Link>
+                  )}
                   <button onClick={handleLogout} className="dropdown-item">
                     Logout
                   </button>
@@ -503,6 +509,7 @@ const App = () => {
           <Route path="/bookapproval" element={<BookApproval />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/bookdetail/:bookId" element={<BookDetail />} />
+          <Route path="/authorapproval" element={<AuthorApproval />} />
         </Routes>
       </main>
     </div>
