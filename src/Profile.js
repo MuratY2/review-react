@@ -16,6 +16,7 @@ const Profile = () => {
   });
   const [loading, setLoading] = useState(true);
   const [authorVerification, setAuthorVerification] = useState({
+    nameSurname: '', 
     idImage: null,
     bio: '',
     website: '',
@@ -149,6 +150,7 @@ const Profile = () => {
       const authorPendingRef = doc(db, 'authors_pending', user.uid);
       await setDoc(authorPendingRef, {
         userId: user.uid,
+        nameSurname: authorVerification.nameSurname, // Include nameSurname
         email: user.email,
         username: userData.username || user.displayName || 'Anonymous',
         bio: authorVerification.bio,
@@ -337,6 +339,20 @@ const Profile = () => {
               <h2>Author Verification</h2>
             </div>
             <form className="verification-form" onSubmit={handleAuthorSubmission}>
+              <div className="form-group">
+                <label>Name Surname</label>
+                <input
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={authorVerification.nameSurname}
+                  onChange={(e) =>
+                    setAuthorVerification((prev) => ({
+                      ...prev,
+                      nameSurname: e.target.value,
+                    }))
+                  }
+                />
+              </div>
               <div className="form-group">
                 <label>Professional Bio</label>
                 <textarea
