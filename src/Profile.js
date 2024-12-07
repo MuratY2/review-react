@@ -29,7 +29,7 @@ const Profile = () => {
     website: '',
     submitted: false,
   });
-  const [previewImage, setPreviewImage] = useState(null);
+  const [previewImage] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 

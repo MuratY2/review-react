@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { doc, getDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot, setDoc } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import Footer from "./Footer";
 import { onAuthStateChanged } from 'firebase/auth';
 import { Rate, Input, Button, List, Avatar, notification } from 'antd';
 import './BookDetail.css';

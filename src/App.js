@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
-import { UserOutlined, MenuOutlined, CloseOutlined } from "@ant-design/icons";
+import { UserOutlined } from "@ant-design/icons";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
