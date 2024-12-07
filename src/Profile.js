@@ -5,6 +5,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { UserCircle, Upload, BookOpen, Mail, Pencil } from 'lucide-react';
+import BookUpload from './BookUpload'; // Import BookUpload component
 import './Profile.css';
 
 const Profile = () => {
@@ -15,23 +16,24 @@ const Profile = () => {
     avatarUrl: '',
   });
   const [loading, setLoading] = useState(true);
-  const [authorVerification, setAuthorVerification] = useState({
-    nameSurname: '', 
-    idImage: null,
-    bio: '',
-    website: '',
-    submitted: false,
-  });
   const [editingProfile, setEditingProfile] = useState(false);
   const [editingAccount, setEditingAccount] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [authorVerification, setAuthorVerification] = useState({
+    nameSurname: '',
+    idImage: null,
+    bio: '',
+    website: '',
+    submitted: false,
+  });
   const [previewImage, setPreviewImage] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
+  // Fetch user data on component load
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
@@ -65,21 +67,6 @@ const Profile = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setAuthorVerification((prev) => ({
-        ...prev,
-        idImage: file,
-      }));
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -150,7 +137,7 @@ const Profile = () => {
       const authorPendingRef = doc(db, 'authors_pending', user.uid);
       await setDoc(authorPendingRef, {
         userId: user.uid,
-        nameSurname: authorVerification.nameSurname, // Include nameSurname
+        nameSurname: authorVerification.nameSurname,
         email: user.email,
         username: userData.username || user.displayName || 'Anonymous',
         bio: authorVerification.bio,
@@ -181,11 +168,14 @@ const Profile = () => {
   return (
     <div className="profile-container">
       <div className="profile-grid">
-        {/* Left Box */}
+        {/* User Info */}
         <div className="profile-card user-info">
           <div className="card-header">
             <UserCircle size={50} className="header-icon" />
             <h2>{userData.username}</h2>
+            <div className="role-box">
+              {userData.role === 'author' ? 'Author' : 'Reader'}
+            </div>
             <button
               className="edit-button"
               onClick={() => setEditingProfile(!editingProfile)}
@@ -257,12 +247,11 @@ const Profile = () => {
               ) : (
                 <UserCircle size={80} className="avatar-display" />
               )}
-              <span className="role-badge">{userData.role}</span>
             </div>
           )}
         </div>
 
-        {/* Right Box */}
+        {/* Account Info */}
         <div className="profile-card account-info">
           <div className="card-header">
             <Mail size={24} className="header-icon" />
@@ -331,7 +320,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Bottom Box */}
+        {/* Apply to Become an Author */}
         {userData.role === 'user' && (
           <div className="profile-card author-verification">
             <div className="card-header">
@@ -367,7 +356,6 @@ const Profile = () => {
                   rows={4}
                 />
               </div>
-
               <div className="form-group">
                 <label>Professional Website/Portfolio</label>
                 <input
@@ -382,7 +370,6 @@ const Profile = () => {
                   }
                 />
               </div>
-
               <div className="form-group">
                 <label>ID Verification</label>
                 <button
@@ -396,7 +383,12 @@ const Profile = () => {
                 <input
                   id="id-upload"
                   type="file"
-                  onChange={handleFileChange}
+                  onChange={(e) =>
+                    setAuthorVerification((prev) => ({
+                      ...prev,
+                      idImage: e.target.files[0],
+                    }))
+                  }
                   style={{ display: 'none' }}
                   accept="image/*"
                 />
@@ -406,11 +398,21 @@ const Profile = () => {
                   </div>
                 )}
               </div>
-
               <button type="submit" className="submit-button" disabled={loading}>
                 {loading ? 'Submitting...' : 'Submit for Verification'}
               </button>
             </form>
+          </div>
+        )}
+
+        {/* Book Upload Section (Only for Authors) */}
+        {userData.role === 'author' && (
+          <div className="profile-card book-upload-section">
+            <div className="card-header">
+              <BookOpen size={24} className="header-icon" />
+              <h2>Book Upload</h2>
+            </div>
+            <BookUpload /> {/* Render the BookUpload component here */}
           </div>
         )}
       </div>

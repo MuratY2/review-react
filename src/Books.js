@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
@@ -6,93 +6,111 @@ import './Books.css';
 
 const Books = () => {
   const { category } = useParams();
-  const [selectedCategory, setSelectedCategory] = useState(category || 'all');
   const [books, setBooks] = useState([]);
-  const [displayedBooks, setDisplayedBooks] = useState([]);
-  const PRICE_RANGE = [30, 60];
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('grid');
+  const [sortOption, setSortOption] = useState('default');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const categoryNames = {
-    'all': 'All Books',
+    all: 'All Books',
     'art-design': 'Art & Design',
-    'business': 'Business',
+    business: 'Business',
     'it-technology': 'IT & Technology',
-    'medicine': 'Medicine',
-    'science': 'Science',
-    'financial': 'Financial',
-    'audio-books': 'Audio Books'
+    medicine: 'Medicine',
+    science: 'Science',
+    financial: 'Financial',
+    'audio-books': 'Audio Books',
   };
+
+  const handleSort = useCallback((booksToSort, option) => {
+    if (!booksToSort) return [];
+    const sorted = [...booksToSort];
+    switch (option) {
+      case 'popularity':
+        return sorted.sort((a, b) => (b.views || 0) - (a.views || 0));
+      case 'price-low':
+        return sorted.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+      case 'price-high':
+        return sorted.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+      default:
+        return sorted;
+    }
+  }, []);
+
+  const filterBooks = useCallback((booksToFilter, term) => {
+    if (!term) return booksToFilter;
+    const lowercaseTerm = term.toLowerCase();
+    return booksToFilter.filter(
+      (book) =>
+        book.title.toLowerCase().includes(lowercaseTerm) ||
+        book.author.toLowerCase().includes(lowercaseTerm)
+    );
+  }, []);
+
+  const displayedBooks = useMemo(() => {
+    let filtered = books;
+    if (category && category !== 'all') {
+      filtered = books.filter((book) => book.category === category);
+    }
+    filtered = filterBooks(filtered, searchTerm);
+    return handleSort(filtered, sortOption);
+  }, [books, category, searchTerm, sortOption, filterBooks, handleSort]);
 
   useEffect(() => {
     const fetchBooks = async () => {
+      setLoading(true);
       try {
-        let q;
-        if (selectedCategory === 'all') {
-          q = query(collection(db, 'books_pending'), where('status', '==', 'approved'));
-        } else {
-          q = query(
-            collection(db, 'books_pending'),
-            where('category', '==', selectedCategory),
-            where('status', '==', 'approved')
-          );
-        }
-        
+        const booksRef = collection(db, 'books_pending');
+        const q = query(booksRef, where('status', '==', 'approved'));
         const querySnapshot = await getDocs(q);
-        const booksData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const booksData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setBooks(booksData);
-        setDisplayedBooks(booksData);
       } catch (error) {
-        console.error("Error fetching books:", error);
+        console.error('Error fetching books:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    setSelectedCategory(category || 'all');
     fetchBooks();
-  }, [category, selectedCategory]);
+  }, []);
 
-  const handlePriceFilter = () => {
-    const filteredBooks = books.filter(book => {
-      const price = parseFloat(book.price);
-      return price >= PRICE_RANGE[0] && price <= PRICE_RANGE[1];
-    });
-    setDisplayedBooks(filteredBooks);
-  };
+  const handleSortChange = (e) => setSortOption(e.target.value);
+  const handleViewChange = (newViewMode) => setViewMode(newViewMode);
+  const handleSearch = (e) => setSearchTerm(e.target.value);
+
+  const currentCategory = category || 'all';
 
   return (
     <div className="books-page">
+      <div className="books-hero">
+        <h1>{categoryNames[currentCategory]}</h1>
+        <p>Explore a wide range of books in {categoryNames[currentCategory]}.</p>
+      </div>
+
       <div className="breadcrumb">
         <Link to="/">Home</Link>
         <span>›</span>
-        <span className="current">{categoryNames[selectedCategory]}</span>
+        <span className="current">{categoryNames[currentCategory]}</span>
       </div>
-
-      <h1 className="category-title">{categoryNames[selectedCategory]}</h1>
 
       <div className="books-container">
         <div className="sidebar">
-          <div className="filter-section">
-            <h3>Filter by price</h3>
-            <div className="price-range">
-              <span>Price: ${PRICE_RANGE[0]} — ${PRICE_RANGE[1]}</span>
-              <button 
-                className="filter-button" 
-                onClick={handlePriceFilter}
-              >
-                FILTER
-              </button>
-            </div>
-          </div>
-
           <div className="filter-section">
             <h3>Categories</h3>
             <ul className="category-list">
               {Object.entries(categoryNames).map(([key, name]) => (
                 <li key={key}>
-                  <button 
-                    className={selectedCategory === key ? 'active' : ''}
-                    onClick={() => setSelectedCategory(key)}
+                  <Link
+                    to={`/books/${key}`}
+                    className={currentCategory === key ? 'active' : ''}
                   >
-                    {name} ({displayedBooks.filter(book => book.category === key).length})
-                  </button>
+                    {name} ({books.filter((book) => key === 'all' || book.category === key).length})
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -100,51 +118,69 @@ const Books = () => {
         </div>
 
         <div className="main-content">
+          <div className="search-wrapper">
+            <input
+              type="text"
+              placeholder="Search by title or author..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="search-input"
+            />
+          </div>
+
           <div className="books-header">
-            <p>Showing all {displayedBooks.length} results</p>
+            <p className="results-count">
+              {loading ? 'Loading...' : `Showing ${displayedBooks.length} results`}
+            </p>
             <div className="view-options">
-              <button className="grid-view" aria-label="Grid view">
-                <svg width="16" height="16" viewBox="0 0 16 16">
-                  <rect x="0" y="0" width="7" height="7"/>
-                  <rect x="9" y="0" width="7" height="7"/>
-                  <rect x="0" y="9" width="7" height="7"/>
-                  <rect x="9" y="9" width="7" height="7"/>
-                </svg>
+              <button
+                className={`view-button ${viewMode === 'grid' ? 'active' : ''}`}
+                onClick={() => handleViewChange('grid')}
+              >
+                Grid
               </button>
-              <button className="list-view" aria-label="List view">
-                <svg width="16" height="16" viewBox="0 0 16 16">
-                  <rect x="0" y="0" width="16" height="4"/>
-                  <rect x="0" y="6" width="16" height="4"/>
-                  <rect x="0" y="12" width="16" height="4"/>
-                </svg>
+              <button
+                className={`view-button ${viewMode === 'list' ? 'active' : ''}`}
+                onClick={() => handleViewChange('list')}
+              >
+                List
               </button>
-              <select className="sort-select">
-                <option>Default sorting</option>
-                <option>Sort by popularity</option>
-                <option>Sort by price: low to high</option>
-                <option>Sort by price: high to low</option>
+              <select
+                className="sort-select"
+                value={sortOption}
+                onChange={handleSortChange}
+              >
+                <option value="default">Default sorting</option>
+                <option value="popularity">Sort by popularity</option>
+                <option value="price-low">Sort by price: low to high</option>
+                <option value="price-high">Sort by price: high to low</option>
               </select>
-              <button className="filter-toggle">Filter</button>
             </div>
           </div>
 
-          <div className="books-grid">
-            {displayedBooks.map((book) => (
-              <Link 
-                to={`/bookdetail/${book.id}`} 
-                key={book.id} 
-                className="book-card"
-              >
-                <div className="book-image">
-                  {book.isHot && <span className="hot-label">HOT</span>}
-                  <img src={book.coverImageUrl} alt={`${book.title} cover`} />
-                </div>
-                <div className="book-info">
-                  <h3>{book.title}</h3>
-                  <p className="author">By {book.author}</p>
-                </div>
-              </Link>
-            ))}
+          <div className={`books-content-wrapper books-${viewMode}`}>
+            {loading ? (
+              <div className="loader">Loading...</div>
+            ) : displayedBooks.length > 0 ? (
+              displayedBooks.map((book) => (
+                <Link
+                  to={`/bookdetail/${book.id}`}
+                  key={book.id}
+                  className="book-card"
+                >
+                  <div className="book-image">
+                    <img src={book.coverImageUrl} alt={`${book.title} cover`} />
+                  </div>
+                  <div className="book-info">
+                    <h3>{book.title}</h3>
+                    <p>By {book.author}</p>
+                    <p>${book.price}</p>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="empty-state">No books found for this category.</div>
+            )}
           </div>
         </div>
       </div>

@@ -80,6 +80,25 @@ html {
 
 /* Add these styles to your Profile.css */
 
+.role-box {
+    position: relative;
+    top: 11rem;
+    left: 21rem;
+    background: #7c3aed; /* Purple background */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px; /* Ensure consistent size */
+    text-align: center;
+}
+
+
 .role-selection {
     display: flex;
     gap: 1rem;
