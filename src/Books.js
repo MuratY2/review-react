@@ -7,7 +7,6 @@ import './Books.css';
 const Books = () => {
   const { category } = useParams();
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('grid');
   const [sortOption, setSortOption] = useState('default');
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,8 +22,10 @@ const Books = () => {
     'audio-books': 'Audio Books',
   };
 
+  // Memoize the sorting function
   const handleSort = useCallback((booksToSort, option) => {
     if (!booksToSort) return [];
+    
     const sorted = [...booksToSort];
     switch (option) {
       case 'popularity':
@@ -38,8 +39,10 @@ const Books = () => {
     }
   }, []);
 
+  // Memoize the filtering function
   const filterBooks = useCallback((booksToFilter, term) => {
     if (!term) return booksToFilter;
+    
     const lowercaseTerm = term.toLowerCase();
     return booksToFilter.filter(
       (book) =>
@@ -48,18 +51,22 @@ const Books = () => {
     );
   }, []);
 
+  // Memoize the displayed books calculation
   const displayedBooks = useMemo(() => {
     let filtered = books;
+    
+    // Only filter by category if it's not 'all' and category is defined
     if (category && category !== 'all') {
-      filtered = books.filter((book) => book.category === category);
+      filtered = books.filter(book => book.category === category);
     }
+    
     filtered = filterBooks(filtered, searchTerm);
     return handleSort(filtered, sortOption);
   }, [books, category, searchTerm, sortOption, filterBooks, handleSort]);
 
+  // Fetch books only when mounted
   useEffect(() => {
     const fetchBooks = async () => {
-      setLoading(true);
       try {
         const booksRef = collection(db, 'books_pending');
         const q = query(booksRef, where('status', '==', 'approved'));
@@ -71,32 +78,36 @@ const Books = () => {
         setBooks(booksData);
       } catch (error) {
         console.error('Error fetching books:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchBooks();
   }, []);
 
-  const handleSortChange = (e) => setSortOption(e.target.value);
-  const handleViewChange = (newViewMode) => setViewMode(newViewMode);
-  const handleSearch = (e) => setSearchTerm(e.target.value);
+  const handleSortChange = (e) => {
+    setSortOption(e.target.value);
+  };
 
+  const handleViewChange = (newViewMode) => {
+    setViewMode(newViewMode);
+  };
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Get current category for display
   const currentCategory = category || 'all';
 
   return (
     <div className="books-page">
-      <div className="books-hero">
-        <h1>{categoryNames[currentCategory]}</h1>
-        <p>Explore a wide range of books in {categoryNames[currentCategory]}.</p>
-      </div>
-
       <div className="breadcrumb">
         <Link to="/">Home</Link>
         <span>›</span>
         <span className="current">{categoryNames[currentCategory]}</span>
       </div>
+
+      <h1 className="category-title">{categoryNames[currentCategory]}</h1>
 
       <div className="books-container">
         <div className="sidebar">
@@ -109,7 +120,9 @@ const Books = () => {
                     to={`/books/${key}`}
                     className={currentCategory === key ? 'active' : ''}
                   >
-                    {name} ({books.filter((book) => key === 'all' || book.category === key).length})
+                    {name} ({books.filter((book) =>
+                      key === 'all' ? true : book.category === key
+                    ).length})
                   </Link>
                 </li>
               ))}
@@ -130,21 +143,34 @@ const Books = () => {
 
           <div className="books-header">
             <p className="results-count">
-              {loading ? 'Loading...' : `Showing ${displayedBooks.length} results`}
+              Showing {displayedBooks.length} results
             </p>
             <div className="view-options">
-              <button
-                className={`view-button ${viewMode === 'grid' ? 'active' : ''}`}
-                onClick={() => handleViewChange('grid')}
-              >
-                Grid
-              </button>
-              <button
-                className={`view-button ${viewMode === 'list' ? 'active' : ''}`}
-                onClick={() => handleViewChange('list')}
-              >
-                List
-              </button>
+              <div className="view-buttons">
+                <button
+                  className={`view-button ${viewMode === 'grid' ? 'active' : ''}`}
+                  onClick={() => handleViewChange('grid')}
+                  aria-label="Grid view"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16">
+                    <rect x="0" y="0" width="7" height="7" />
+                    <rect x="9" y="0" width="7" height="7" />
+                    <rect x="0" y="9" width="7" height="7" />
+                    <rect x="9" y="9" width="7" height="7" />
+                  </svg>
+                </button>
+                <button
+                  className={`view-button ${viewMode === 'list' ? 'active' : ''}`}
+                  onClick={() => handleViewChange('list')}
+                  aria-label="List view"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16">
+                    <rect x="0" y="0" width="16" height="4" />
+                    <rect x="0" y="6" width="16" height="4" />
+                    <rect x="0" y="12" width="16" height="4" />
+                  </svg>
+                </button>
+              </div>
               <select
                 className="sort-select"
                 value={sortOption}
@@ -158,29 +184,35 @@ const Books = () => {
             </div>
           </div>
 
-          <div className={`books-content-wrapper books-${viewMode}`}>
-            {loading ? (
-              <div className="loader">Loading...</div>
-            ) : displayedBooks.length > 0 ? (
-              displayedBooks.map((book) => (
-                <Link
-                  to={`/bookdetail/${book.id}`}
-                  key={book.id}
-                  className="book-card"
-                >
-                  <div className="book-image">
-                    <img src={book.coverImageUrl} alt={`${book.title} cover`} />
-                  </div>
-                  <div className="book-info">
-                    <h3>{book.title}</h3>
-                    <p>By {book.author}</p>
-                    <p>${book.price}</p>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div className="empty-state">No books found for this category.</div>
-            )}
+          <div className="books-content-wrapper">
+            <div className={`books-${viewMode}`}>
+              {displayedBooks.length > 0 ? (
+                displayedBooks.map((book) => (
+                  <Link
+                    to={`/bookdetail/${book.id}`}
+                    key={book.id}
+                    className={`book-card ${viewMode === 'list' ? 'list-card' : ''}`}
+                  >
+                    <div className="book-image">
+                      {book.isHot && <span className="hot-label">HOT</span>}
+                      <img src={book.coverImageUrl} alt={`${book.title} cover`} />
+                    </div>
+                    <div className="book-info">
+                      <h3>{book.title}</h3>
+                      <p className="author">By {book.author}</p>
+                      {book.price && <p className="price">${book.price}</p>}
+                      {viewMode === 'list' && book.description && (
+                        <p className="description">{book.description}</p>
+                      )}
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="empty-container">
+                  <div className="empty-message">No books found. Try a different search.</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

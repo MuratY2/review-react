@@ -15,6 +15,7 @@ import Event from "./Event";
 import Profile from "./Profile";
 import BookDetail from "./BookDetail";
 import BookApproval from "./BookApproval";
+import BookUpload from "./BookUpload";
 import AuthorApproval from "./AuthorApproval";
 import Home from "./Home";
 import "./App.css";
@@ -85,6 +86,10 @@ const App = () => {
           <Link to="/event" className="menu-item">
             Event
           </Link>
+          <Link to="/bookupload" className="menu-item">
+            Upload
+          </Link>
+          
         </nav>
 
         {/* Account Dropdown */}
@@ -138,6 +143,7 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/event" element={<Event />} />
+          <Route path="/bookupload" element={<BookUpload />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/bookdetail/:bookId" element={<BookDetail />} />
           <Route path="/bookapproval" element={<BookApproval />} />

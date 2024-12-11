@@ -5,7 +5,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { UserCircle, Upload, BookOpen, Mail, Pencil } from 'lucide-react';
-import BookUpload from './BookUpload'; // Import BookUpload component
+import BookUpload from './BookUpload'; 
 import './Profile.css';
 
 const Profile = () => {
