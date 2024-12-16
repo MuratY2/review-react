@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { doc, getDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Rate, Input, Button, List, Avatar, notification } from 'antd';
 import './BookDetail.css';
-
 
 const { TextArea } = Input;
 
@@ -19,6 +18,8 @@ const BookDetail = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loadingComment, setLoadingComment] = useState(false);
+  const [questions, setQuestions] = useState([]); 
+  const [newQuestion, setNewQuestion] = useState(''); 
 
   useEffect(() => {
     onAuthStateChanged(auth, (currentUser) => {
@@ -64,6 +65,21 @@ const BookDetail = () => {
     fetchComments();
   }, [bookId]);
 
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      const questionsRef = collection(db, 'books_pending', bookId, 'questions');
+      const q = query(questionsRef, orderBy('createdAt', 'desc'));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const questionsData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setQuestions(questionsData);
+      });
+
+      return () => unsubscribe();
+    };
+
+    fetchQuestions();
+  }, [bookId]);
+
   const handleRating = async (value) => {
     if (!user) {
       notification.warning({
@@ -103,7 +119,7 @@ const BookDetail = () => {
         totalRating += value;
         numberOfRatings++;
 
-        await setDoc(userRatingRef, { rating: value });
+        await addDoc(userRatingRef, { rating: value });
         notification.success({
           message: 'Rating Submitted',
           description: `You rated "${book.title}" ${value} stars.`,
@@ -165,6 +181,42 @@ const BookDetail = () => {
       console.error('Error adding comment:', error);
     } finally {
       setLoadingComment(false);
+    }
+  };
+
+  const handleAddQuestion = async () => {
+    if (!user) {
+      notification.warning({
+        message: 'Login Required',
+        description: 'Please log in to ask a question.',
+      });
+      return;
+    }
+
+    if (!newQuestion.trim()) {
+      notification.warning({
+        message: 'Empty Question',
+        description: 'Question cannot be empty.',
+      });
+      return;
+    }
+
+    try {
+      const questionsRef = collection(db, 'books_pending', bookId, 'questions');
+      await addDoc(questionsRef, {
+        userId: user.uid,
+        userName: user.displayName || 'Anonymous',
+        content: newQuestion,
+        createdAt: new Date(),
+        answer: null,
+      });
+      setNewQuestion('');
+      notification.success({
+        message: 'Question Added',
+        description: 'Your question was successfully added.',
+      });
+    } catch (error) {
+      console.error('Error adding question:', error);
     }
   };
 
@@ -231,7 +283,45 @@ const BookDetail = () => {
           </div>
         )}
       </div>
-      
+
+      <div className="questions-section">
+        <h3>Questions for the Author</h3>
+        {questions.length > 0 ? (
+          <List
+            dataSource={questions}
+            renderItem={(question) => (
+              <List.Item>
+                <List.Item.Meta
+                  avatar={<Avatar>{question.userName[0]}</Avatar>}
+                  title={question.userName}
+                  description={question.content}
+                />
+                {question.answer && <p><strong>Answer:</strong> {question.answer}</p>}
+              </List.Item>
+            )}
+          />
+        ) : (
+          <p>No questions yet. Be the first to ask a question!</p>
+        )}
+
+        {user && (
+          <div className="add-question">
+            <TextArea
+              rows={4}
+              value={newQuestion}
+              onChange={(e) => setNewQuestion(e.target.value)}
+              placeholder="Ask the author a question..."
+            />
+            <Button
+              type="primary"
+              onClick={handleAddQuestion}
+              style={{ marginTop: '10px' }}
+            >
+              Submit
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
