@@ -103,6 +103,9 @@ const AuthorApproval = () => {
                 <img src={author.idImageUrl} alt={`${author.username}'s ID`} style={{ width: '100%', height: 'auto' }} />
                 <h3>{author.username}</h3>
                 <p>
+                  <strong>Name Surname:</strong> {author.nameSurname}
+                </p>
+                <p>
                   <strong>Email:</strong> {author.email}
                 </p>
                 <p>
@@ -113,9 +116,6 @@ const AuthorApproval = () => {
                   <a href={author.website} target="_blank" rel="noreferrer">
                     {author.website}
                   </a>
-                </p>
-                <p>
-                  <strong>Expertise:</strong> {author.expertise}
                 </p>
                 <div>
                   <button onClick={() => approveAuthor(author.id)}>Approve</button>
