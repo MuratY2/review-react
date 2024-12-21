@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { db } from './firebase';
+import { BookOpen, Users, Star, TrendingUp } from 'lucide-react';
+import BestBookImage from './images/Assets/BestBook.jpg';
 import './Home.css';
 
 const Home = () => {
@@ -92,83 +94,100 @@ const Home = () => {
   ];
 
   // Categories Navigation
-  const handleCategoryClick = (category) => {
-    const categoryMapping = {
-      'Art & Design': 'art-design',
-      Business: 'business',
-      'IT & Technology': 'it-technology',
-      Financial: 'financial',
-      Medicine: 'medicine',
-      'Audio Books': 'audio-books',
-    };
+  
 
-    const formattedCategory = categoryMapping[category];
-    navigate(`/books/${formattedCategory}`);
-  };
+  // Community Stats
+  const communityStats = [
+    {
+      icon: <BookOpen className="w-5 h-5 text-rose-500" />,
+      label: 'Most Read',
+      title: 'Python Basics',
+      value: '2.3k reads'
+    },
+    {
+      icon: <Users className="w-5 h-5 text-rose-500" />,
+      label: 'Active Readers',
+      value: '15.6k'
+    },
+    {
+      icon: <Star className="w-5 h-5 text-rose-500" />,
+      label: 'Top Rated',
+      title: 'Clean Code',
+      value: '4.9★'
+    },
+    {
+      icon: <TrendingUp className="w-5 h-5 text-rose-500" />,
+      label: 'Trending Category',
+      title: 'Programming',
+      value: '+127%'
+    }
+  ];
 
   return (
     <div className="home-page">
-      {/* Categories Section */}
-      <section className="category-section">
-        <div className="category-header">
-          <div className="titles">
-            <h6 className="sub-title">Top Categories</h6>
-            <h2 className="section-title">Explore Categories</h2>
-          </div>
-          <button className="view-all" onClick={() => navigate('/books')}>
-            View All →
-          </button>
-        </div>
-        <div className="categories-grid">
-          <div className="category-column">
-            <div
-              className="category-card small"
-              onClick={() => handleCategoryClick('Art & Design')}
-            >
-              <h3>Art & Design</h3>
-              <p>300 Books</p>
+      {/* Hero Section */}
+      <section className="hero-section">
+        <div className="hero-container">
+          <div className="hero-content">
+            <div className="hero-text-content">
+              <span className="hero-tag">Digital Library</span>
+              <h1 className="hero-title">
+                Discover Your Next 
+                <span className="highlight">Favorite Book</span>
+              </h1>
+              <p className="hero-description">
+                Explore our vast collection of digital books, from programming to business. 
+                Join our community of passionate readers.
+              </p>
+              <div className="hero-buttons">
+                <button 
+                  onClick={() => navigate('/books')}
+                  className="primary-button"
+                >
+                  Browse Books
+                </button>
+                <button 
+                  onClick={() => navigate('/Signup')}
+                  className="primary-button"
+                >
+                  Join Community!
+                </button>
+              </div>
             </div>
-            <div
-              className="category-card small"
-              onClick={() => handleCategoryClick('Business')}
-            >
-              <h3>Business</h3>
-              <p>450 Books</p>
+
+            <div className="hero-image-container" onClick={() => navigate('/books')}>
+              <div className="hero-image-wrapper">
+              <img
+                src={BestBookImage}
+                alt="Digital Library Collection"
+                className="hero-image"
+              />
+              </div>
+
+              <div className="stats-window">
+                <div className="stats-content">
+                  {communityStats.map((stat, index) => (
+                    <div key={index} className="stat-item">
+                      <div className="stat-icon">
+                        {stat.icon}
+                      </div>
+                      <div className="stat-info">
+                        <p className="stat-label">{stat.label}</p>
+                        {stat.title && (
+                          <p className="stat-title">{stat.title}</p>
+                        )}
+                        <p className="stat-value">{stat.value}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-          <div
-            className="category-card large"
-            onClick={() => handleCategoryClick('IT & Technology')}
-          >
-            <h3>IT & Technology</h3>
-            <p>900 Books</p>
-          </div>
-          <div className="category-column">
-            <div
-              className="category-card small"
-              onClick={() => handleCategoryClick('Financial')}
-            >
-              <h3>Financial</h3>
-              <p>700 Books</p>
-            </div>
-            <div
-              className="category-card small"
-              onClick={() => handleCategoryClick('Medicine')}
-            >
-              <h3>Medicine</h3>
-              <p>1000 Books</p>
-            </div>
-          </div>
-          <div
-            className="category-card large"
-            onClick={() => handleCategoryClick('Audio Books')}
-          >
-            <h3>Audio Books</h3>
-            <p>300 Books</p>
           </div>
         </div>
       </section>
 
+     
       {/* Featured Books */}
       <section className="featured-books">
         <h6 className="featured-subtitle">FEATURED BOOKS</h6>
@@ -233,7 +252,9 @@ const Home = () => {
                 <h6 className="best-of-subtitle">BEST OF THE MONTH</h6>
                 <h2 className="best-of-title">{mainBook.title}</h2>
                 <p className="best-of-author">By {mainBook.author}</p>
-                <p className="best-of-description">{mainBook.description || 'No description available.'}</p>
+                <p className="best-of-description">
+                  {mainBook.description || 'No description available.'}
+                </p>
                 <button className="add-to-cart-btn">ADD TO CART</button>
               </div>
               <div className="best-of-month-image">

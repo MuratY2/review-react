@@ -1,60 +1,80 @@
-/* Ensure body and html have the same background color */
+/* Base styles */
 body, html {
-    background: #f8f9fa; /* Consistent background color */
     margin: 0;
     padding: 0;
     height: 100%;
+    font-family: 'Aldrich', sans-serif;
 }
 
-/* Upload container background */
 .upload-container {
     min-height: 100vh;
-    background: #f8f9fa; /* Same background color as body */
+    background: linear-gradient(135deg, rgba(235, 95, 93, 0.08) 0%, rgba(229, 72, 70, 0.05) 100%);
     padding: 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     width: 100%;
+    position: relative;
+}
+
+.upload-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(45deg, rgba(235, 95, 93, 0.15) 0%, rgba(100, 116, 139, 0.1) 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 70%);
 }
 
 /* Upload card styles */
 .upload-card {
     background: #ffffff;
     border-radius: 2rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(235, 95, 93, 0.08);
     padding: 3rem;
     max-width: 900px;
     width: 100%;
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(235, 95, 93, 0.1);
 }
 
-/* Additional styles for a seamless UI */
 .card-header {
+    padding-left: 300px;
     text-align: center;
     margin-bottom: 2rem;
+    position: relative;
 }
 
 .card-header h1 {
     font-size: 2.2rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #1E293B;
+    margin-bottom: 1rem;
 }
 
-.card-header p {
-    color: #6b7280;
-    font-size: 1rem;
+.card-header::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(to right, #EB5F5D, #e54846);
+    margin: 1rem auto;
+    border-radius: 2px;
 }
 
-
-
+/* Form styles */
 .form-group {
     margin-bottom: 1.5rem;
+    position: relative;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #374151;
+    color: #1E293B;
     font-weight: 600;
     font-size: 1rem;
 }
@@ -64,37 +84,39 @@ body, html {
 .form-group textarea {
     width: 100%;
     padding: 1rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(235, 95, 93, 0.2);
     border-radius: 1rem;
     font-size: 1rem;
-    background: #f9fafb;
+    background: rgba(255, 255, 255, 0.8);
     transition: all 0.3s ease;
+    color: #64748B;
+    font-family: 'Aldrich', sans-serif;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: #EB5F5D;
+    box-shadow: 0 0 0 3px rgba(235, 95, 93, 0.1);
     background: white;
 }
 
 .form-group textarea {
     resize: vertical;
     min-height: 120px;
-    font-family: inherit;
 }
 
 .form-group select {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%233f83f8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23EB5F5D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
     background-size: 1rem;
     padding-right: 2.5rem;
 }
 
+/* File input styles */
 .file-input-container {
     margin-top: 1rem;
 }
@@ -105,7 +127,7 @@ body, html {
     justify-content: center;
     gap: 0.75rem;
     padding: 1rem 1.5rem;
-    background: #3b82f6;
+    background: linear-gradient(to right, #EB5F5D, #e54846);
     color: white;
     border-radius: 1rem;
     cursor: pointer;
@@ -114,9 +136,8 @@ body, html {
 }
 
 .file-input-label:hover {
-    background: #2563eb;
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 8px 16px rgba(235, 95, 93, 0.2);
 }
 
 .file-input {
@@ -128,14 +149,15 @@ body, html {
 
 .file-name {
     margin-left: 0.5rem;
-    color: #4b5563;
+    color: #64748B;
     font-size: 0.95rem;
 }
 
+/* Submit button styles */
 .submit-button {
     width: 100%;
     padding: 1rem;
-    background: #3b82f6;
+    background: linear-gradient(to right, #EB5F5D, #e54846);
     color: white;
     border: none;
     border-radius: 1rem;
@@ -147,24 +169,27 @@ body, html {
     justify-content: center;
     align-items: center;
     gap: 0.75rem;
+    font-family: 'Aldrich', sans-serif;
 }
 
 .submit-button:hover:not(:disabled) {
-    background: #2563eb;
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 8px 16px rgba(235, 95, 93, 0.2);
 }
 
 .submit-button:disabled {
-    background: #93c5fd;
+    background: #F8FAFC;
+    color: #64748B;
     cursor: not-allowed;
     box-shadow: none;
+    border: 1px solid rgba(235, 95, 93, 0.1);
 }
 
+/* Error message styles */
 .error-message {
-    background: #fee2e2;
-    border: 1px solid #fca5a5;
-    color: #b91c1c;
+    background: rgba(254, 242, 242, 0.9);
+    border: 1px solid #EB5F5D;
+    color: #b72b29;
     padding: 1rem;
     border-radius: 1rem;
     margin-bottom: 1.5rem;
@@ -172,6 +197,7 @@ body, html {
     font-size: 1rem;
 }
 
+/* Loading spinner styles */
 .loading-spinner {
     display: inline-block;
     width: 1.5rem;
@@ -183,14 +209,11 @@ body, html {
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
+/* Responsive styles */
 @media (max-width: 768px) {
     .upload-card {
         padding: 1.5rem;
@@ -214,4 +237,17 @@ body, html {
         padding: 0.8rem;
         font-size: 1rem;
     }
+}
+
+/* Decorative elements */
+.upload-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(225deg, rgba(235, 95, 93, 0.1), transparent);
+    border-radius: 50%;
+    filter: blur(60px);
 }

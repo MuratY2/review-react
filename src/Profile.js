@@ -60,6 +60,17 @@ const Profile = () => {
     return () => unsubscribe();
   }, [navigate]);
 
+  const getRoleDisplay = (role) => {
+    switch(role) {
+      case 'admin':
+        return 'Admin';
+      case 'author':
+        return 'Author';
+      default:
+        return 'Reader';
+    }
+  };
+
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -174,7 +185,7 @@ const Profile = () => {
             <UserCircle size={50} className="header-icon" />
             <h2>{userData.username}</h2>
             <div className="role-box">
-              {userData.role === 'author' ? 'Author' : 'Reader'}
+                {getRoleDisplay(userData.role)}
             </div>
             <button
               className="edit-button"

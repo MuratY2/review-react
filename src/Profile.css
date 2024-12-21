@@ -48,6 +48,11 @@ html {
     margin: 0;
 }
 
+.card-header::after{
+
+    display: none;
+}
+
 .header-icon {
     color: #7c3aed;
 }
@@ -83,7 +88,7 @@ html {
 .role-box {
     position: relative;
     top: 11rem;
-    left: 21rem;
+    left: 28rem;
     background: #7c3aed; /* Purple background */
     color: white;
     padding: 0.5rem 1rem;

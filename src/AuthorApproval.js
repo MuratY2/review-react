@@ -2,12 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { useNavigate } from 'react-router-dom';
+import { useRive, Layout, Fit, Alignment } from 'rive-react';
+import './AuthorApproval.css';
 
 const AuthorApproval = () => {
   const [pendingAuthors, setPendingAuthors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+
+  const { RiveComponent } = useRive({
+    src: "/search.riv",
+    autoplay: true,
+    layout: new Layout({
+      fit: Fit.Contain,
+      alignment: Alignment.Center,
+    }),
+  });
 
   useEffect(() => {
     const checkUserRole = async () => {
@@ -90,41 +101,50 @@ const AuthorApproval = () => {
   }
 
   return (
-    <div>
-      <h1>Authors Pending Approval</h1>
+    <div className="approval-container">
+      <h1 className="approval-title">Authors Pending Approval</h1>
 
       {loading ? (
-        <p>Loading pending authors...</p>
+        <p className="loading-message">Loading pending authors...</p>
       ) : (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', padding: '20px' }}>
+        <div>
           {pendingAuthors.length > 0 ? (
-            pendingAuthors.map((author) => (
-              <div key={author.id} style={{ border: '1px solid #ccc', padding: '15px', width: '300px' }}>
-                <img src={author.idImageUrl} alt={`${author.username}'s ID`} style={{ width: '100%', height: 'auto' }} />
-                <h3>{author.username}</h3>
-                <p>
-                  <strong>Name Surname:</strong> {author.nameSurname}
-                </p>
-                <p>
-                  <strong>Email:</strong> {author.email}
-                </p>
-                <p>
-                  <strong>Bio:</strong> {author.bio}
-                </p>
-                <p>
-                  <strong>Website:</strong>{' '}
-                  <a href={author.website} target="_blank" rel="noreferrer">
-                    {author.website}
-                  </a>
-                </p>
-                <div>
-                  <button onClick={() => approveAuthor(author.id)}>Approve</button>
-                  <button onClick={() => rejectAuthor(author.id)}>Reject</button>
+            <div className="pending-authors-container">
+              {pendingAuthors.map((author) => (
+                <div key={author.id} className="author-card">
+                  <img src={author.idImageUrl} alt={`${author.username}'s ID`} className="author-id-image" />
+                  <h3 className="author-username">{author.username}</h3>
+                  <p className="author-detail"><strong>Name Surname:</strong> {author.nameSurname}</p>
+                  <p className="author-detail"><strong>Email:</strong> {author.email}</p>
+                  <p className="author-detail"><strong>Bio:</strong> {author.bio}</p>
+                  <p className="author-detail">
+                    <strong>Website:</strong>{' '}
+                    <a href={author.website} target="_blank" rel="noreferrer" className="author-website">
+                      {author.website}
+                    </a>
+                  </p>
+                  <div className="button-container">
+                    <button className="approve-button" onClick={() => approveAuthor(author.id)}>
+                      Approve
+                    </button>
+                    <button className="reject-button" onClick={() => rejectAuthor(author.id)}>
+                      Reject
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           ) : (
-            <p>No pending authors.</p>
+            <div className="no-authors-message">
+              <div className="rive-container">
+                <RiveComponent />
+              </div>
+              <h2>No Authors Available for Approval</h2>
+              <p>It seems there are no authors waiting for approval at the moment. Please check back later!</p>
+              <button className="back-button" onClick={() => navigate('/')}>
+                Go to Home
+              </button>
+            </div>
           )}
         </div>
       )}
