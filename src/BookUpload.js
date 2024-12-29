@@ -207,7 +207,11 @@ const BookUpload = () => {
               <option value="medicine">Medicine</option>
               <option value="science">Science</option>
               <option value="financial">Financial</option>
-              <option value="audio-books">Audio Books</option>
+              <option value="horror">Horror</option>
+              <option value="dystopian">Dystopian</option>
+              <option value="fantasy">Fantasy</option>
+              <option value="philosophy">Philosophy</option>
+              <option value="historical">Historical</option>
             </select>
           </div>
 

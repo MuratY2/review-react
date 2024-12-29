@@ -19,7 +19,11 @@ const Books = () => {
     medicine: 'Medicine',
     science: 'Science',
     financial: 'Financial',
-    'audio-books': 'Audio Books',
+    horror: 'Horror',
+    dystopian: 'Dystopian',
+    fantasy: 'Fantasy',
+    philosophy: 'Philosophy',
+    historical: 'Historical',
   };
 
   // Memoize the sorting function
