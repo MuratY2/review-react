@@ -205,6 +205,15 @@
   }
 }
 
+.pending-books-container .book-card img {
+  max-width: 450px; 
+  max-height: 400px; 
+  object-fit: contain; 
+  display: block;
+  margin: 0 auto; 
+}
+
+
 @media (max-width: 768px) {
   .book-detail-page {
     padding: 1rem;
@@ -213,6 +222,8 @@
   .book-detail-page .book-detail {
     flex-direction: column;
   }
+
+  
 
   .book-detail-page .book-image {
     max-width: none;
