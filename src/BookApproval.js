@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  doc,
+  getDoc
+} from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { useNavigate } from 'react-router-dom';
 import { useRive, Layout, Fit, Alignment } from 'rive-react';
@@ -12,7 +20,7 @@ const BookApproval = () => {
   const navigate = useNavigate();
 
   const { RiveComponent } = useRive({
-    src: "/nothing_found.riv",
+    src: '/nothing_found.riv',
     autoplay: true,
     layout: new Layout({
       fit: Fit.Contain,
@@ -107,10 +115,33 @@ const BookApproval = () => {
             <div className="pending-books-container">
               {pendingBooks.map((book) => (
                 <div key={book.id} className="book-card">
-                  <img src={book.coverImageUrl} alt={`${book.title} cover`} style={{ width: '100%', height: 'auto' }} />
+                  <img
+                    src={book.coverImageUrl}
+                    alt={`${book.title} cover`}
+                    style={{ width: '100%', height: 'auto' }}
+                  />
                   <h3 className="book-title">{book.title}</h3>
-                  <p className="book-author"><strong>Author:</strong> {book.author}</p>
+                  <p className="book-author">
+                    <strong>Author:</strong> {book.author}
+                  </p>
                   <p className="book-description">{book.description}</p>
+
+                  {/* NEW: Show PDF if available */}
+                  {book.pdfUrl && (
+                    <div className="pdf-preview">
+                      <p>
+                        <strong>PDF Preview:</strong>
+                      </p>
+
+                      <iframe
+                        src={book.pdfUrl}
+                        title="PDF Preview"
+                        width="100%"
+                        height="400px"
+                      ></iframe>
+                    </div>
+                  )}
+
                   <div className="button-container">
                     <button className="approve-button" onClick={() => approveBook(book.id)}>
                       Approve
@@ -128,7 +159,10 @@ const BookApproval = () => {
                 <RiveComponent />
               </div>
               <h2>No Books Available for Approval</h2>
-              <p>It seems there are no books waiting for approval at the moment. Please check back later!</p>
+              <p>
+                It seems there are no books waiting for approval at the moment. Please check
+                back later!
+              </p>
               <button className="back-button" onClick={() => navigate('/')}>
                 Go to Home
               </button>

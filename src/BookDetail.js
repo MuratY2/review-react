@@ -238,6 +238,18 @@ const BookDetail = () => {
           <p><strong>Price:</strong> ${book.price}</p>
           <p><strong>Category:</strong> {book.category}</p>
 
+          {book.pdfUrl && (
+            <div className="pdf-viewer">
+              <h3>Read the PDF:</h3>
+              <iframe
+                src={book.pdfUrl}
+                width="100%"
+                height="600px"
+                title="PDF Viewer"
+              />
+            </div>
+          )}
+
           <div className="rating-section">
             <h3>Average Rating: {averageRating.toFixed(1)}</h3>
             <Rate value={rating} onChange={handleRating} />

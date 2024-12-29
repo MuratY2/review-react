@@ -9,6 +9,7 @@ const BookUpload = () => {
   const [isbn, setIsbn] = useState('');
   const [author, setAuthor] = useState('');
   const [file, setFile] = useState(null);
+  const [pdfFile, setPdfFile] = useState(null); 
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,16 @@ const BookUpload = () => {
     }
   };
 
+  const handlePdfChange = (event) => {
+    const selectedPdf = event.target.files[0];
+    if (selectedPdf && selectedPdf.type === 'application/pdf') {
+      setPdfFile(selectedPdf);
+      setError('');
+    } else {
+      setError('Please select a valid PDF file');
+    }
+  };
+
   const fetchBookData = async (isbn) => {
     try {
       const response = await axios.get(
@@ -32,7 +43,7 @@ const BookUpload = () => {
       const bookData = response.data[`ISBN:${isbn}`];
 
       if (!bookData) {
-        setError("Invalid ISBN or book not found.");
+        setError('Invalid ISBN or book not found.');
         return null;
       }
 
@@ -48,7 +59,7 @@ const BookUpload = () => {
         description: fetchedDescription,
       };
     } catch (error) {
-      setError("Error retrieving book details. Please try again.");
+      setError('Error retrieving book details. Please try again.');
       return null;
     }
   };
@@ -82,6 +93,7 @@ const BookUpload = () => {
 
     try {
       let coverImageUrl = bookData.coverImageUrl;
+      let pdfUrl = ''; 
 
       if (file) {
         const storageRef = ref(storage, `book-covers/${file.name}`);
@@ -100,12 +112,30 @@ const BookUpload = () => {
         });
       }
 
+      if (pdfFile) {
+        const pdfRef = ref(storage, `book-pdfs/${pdfFile.name}`);
+        const pdfUploadTask = uploadBytesResumable(pdfRef, pdfFile);
+
+        await new Promise((resolve, reject) => {
+          pdfUploadTask.on(
+            'state_changed',
+            null,
+            (error) => reject(error),
+            async () => {
+              pdfUrl = await getDownloadURL(pdfUploadTask.snapshot.ref);
+              resolve();
+            }
+          );
+        });
+      }
+
       await addDoc(collection(db, 'books_pending'), {
         title: bookData.title,
         author,
         description,
         isbn,
         coverImageUrl,
+        pdfUrl, 
         category,
         createdAt: new Date(),
         status: 'pending',
@@ -115,11 +145,12 @@ const BookUpload = () => {
       setIsbn('');
       setAuthor('');
       setFile(null);
+      setPdfFile(null); 
       setCategory('');
       setDescription('');
       setError('');
       setLoading(false);
-      
+
       alert('Book uploaded successfully and is awaiting admin approval.');
     } catch (error) {
       setLoading(false);
@@ -132,7 +163,6 @@ const BookUpload = () => {
       <div className="upload-card">
         <div className="card-header">
           <h1>Upload New Book</h1>
-         
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -206,6 +236,23 @@ const BookUpload = () => {
                 accept="image/*"
               />
               {file && <span className="file-name">{file.name}</span>}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>PDF File (optional)</label>
+            <div className="file-input-container">
+              <label className="file-input-label" htmlFor="pdf">
+                Choose File
+              </label>
+              <input
+                id="pdf"
+                className="file-input"
+                type="file"
+                onChange={handlePdfChange}
+                accept="application/pdf"
+              />
+              {pdfFile && <span className="file-name">{pdfFile.name}</span>}
             </div>
           </div>
 
