@@ -226,36 +226,35 @@ const BookDetail = () => {
 
   return (
     <div className="book-detail-page">
-      <div className="book-detail">
-        <div className="book-image">
-          <img src={book.coverImageUrl} alt={`${book.title} cover`} />
-        </div>
+<div className="book-detail">
+  <div className="book-image">
+    <img src={book.coverImageUrl} alt={`${book.title} cover`} />
+    <div className="rating-section">
+      <h3>Average Rating: {averageRating.toFixed(1)}</h3>
+      <Rate value={rating} onChange={handleRating} />
+    </div>
+  </div>
 
-        <div className="book-info">
-          <h1 className="book-title">{book.title}</h1>
-          <p><strong>Author:</strong> {book.author}</p>
-          <p><strong>Description:</strong> {book.description}</p>
-          <p><strong>Price:</strong> ${book.price}</p>
-          <p><strong>Category:</strong> {book.category}</p>
+  <div className="book-info">
+    <h1 className="book-title">{book.title}</h1>
+    <p><strong>Author:</strong> {book.author}</p>
+    <p><strong>Description:</strong> {book.description}</p>
+    <p><strong>Price:</strong> ${book.price}</p>
+    <p><strong>Category:</strong> {book.category}</p>
 
-          {book.pdfUrl && (
-            <div className="pdf-viewer">
-              <h3>Read the PDF:</h3>
-              <iframe
-                src={book.pdfUrl}
-                width="100%"
-                height="600px"
-                title="PDF Viewer"
-              />
-            </div>
-          )}
-
-          <div className="rating-section">
-            <h3>Average Rating: {averageRating.toFixed(1)}</h3>
-            <Rate value={rating} onChange={handleRating} />
-          </div>
-        </div>
+    {book.pdfUrl && (
+      <div className="pdf-viewer">
+        <h3>Read the PDF:</h3>
+        <iframe
+          src={book.pdfUrl}
+          width="100%"
+          height="600px"
+          title="PDF Viewer"
+        />
       </div>
+    )}
+  </div>
+</div>
 
       <div className="comments-section">
         <h3>Comments</h3>
