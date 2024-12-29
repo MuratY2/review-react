@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { doc, getDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc,setDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Rate, Input, Button, List, Avatar, notification } from 'antd';
@@ -88,13 +88,12 @@ const BookDetail = () => {
       });
       return;
     }
-
+  
     try {
       const bookRef = doc(db, 'books_pending', bookId);
       const userRatingRef = doc(collection(db, 'books_pending', bookId, 'ratings'), user.uid);
-      const userRatingSnap = await getDoc(userRatingRef);
-
       const bookSnap = await getDoc(bookRef);
+  
       if (!bookSnap.exists()) {
         notification.error({
           message: 'Error',
@@ -102,15 +101,17 @@ const BookDetail = () => {
         });
         return;
       }
-
+  
       const bookData = bookSnap.data();
       let { totalRating = 0, numberOfRatings = 0 } = bookData;
-
+  
+      const userRatingSnap = await getDoc(userRatingRef);
+  
       if (userRatingSnap.exists()) {
         const previousRating = userRatingSnap.data().rating;
         totalRating = totalRating - previousRating + value;
-
-        await updateDoc(userRatingRef, { rating: value });
+  
+        await setDoc(userRatingRef, { rating: value });
         notification.success({
           message: 'Rating Updated',
           description: `Your rating for "${book.title}" has been updated to ${value} stars.`,
@@ -118,22 +119,22 @@ const BookDetail = () => {
       } else {
         totalRating += value;
         numberOfRatings++;
-
-        await addDoc(userRatingRef, { rating: value });
+  
+        await setDoc(userRatingRef, { rating: value });
         notification.success({
           message: 'Rating Submitted',
           description: `You rated "${book.title}" ${value} stars.`,
         });
       }
-
+  
       const newAverageRating = totalRating / numberOfRatings;
-
+  
       await updateDoc(bookRef, {
         totalRating,
         numberOfRatings,
         averageRating: newAverageRating,
       });
-
+  
       setRating(value);
       setAverageRating(newAverageRating);
     } catch (error) {
