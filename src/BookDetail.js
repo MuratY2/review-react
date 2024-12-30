@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { doc, getDoc,setDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Rate, Input, Button, List, Avatar, notification } from 'antd';
@@ -18,8 +18,8 @@ const BookDetail = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loadingComment, setLoadingComment] = useState(false);
-  const [questions, setQuestions] = useState([]); 
-  const [newQuestion, setNewQuestion] = useState(''); 
+  const [questions, setQuestions] = useState([]);
+  const [newQuestion, setNewQuestion] = useState('');
 
   useEffect(() => {
     onAuthStateChanged(auth, (currentUser) => {
@@ -88,12 +88,12 @@ const BookDetail = () => {
       });
       return;
     }
-  
+
     try {
       const bookRef = doc(db, 'books_pending', bookId);
       const userRatingRef = doc(collection(db, 'books_pending', bookId, 'ratings'), user.uid);
       const bookSnap = await getDoc(bookRef);
-  
+
       if (!bookSnap.exists()) {
         notification.error({
           message: 'Error',
@@ -101,16 +101,16 @@ const BookDetail = () => {
         });
         return;
       }
-  
+
       const bookData = bookSnap.data();
       let { totalRating = 0, numberOfRatings = 0 } = bookData;
-  
+
       const userRatingSnap = await getDoc(userRatingRef);
-  
+
       if (userRatingSnap.exists()) {
         const previousRating = userRatingSnap.data().rating;
         totalRating = totalRating - previousRating + value;
-  
+
         await setDoc(userRatingRef, { rating: value });
         notification.success({
           message: 'Rating Updated',
@@ -119,22 +119,22 @@ const BookDetail = () => {
       } else {
         totalRating += value;
         numberOfRatings++;
-  
+
         await setDoc(userRatingRef, { rating: value });
         notification.success({
           message: 'Rating Submitted',
           description: `You rated "${book.title}" ${value} stars.`,
         });
       }
-  
+
       const newAverageRating = totalRating / numberOfRatings;
-  
+
       await updateDoc(bookRef, {
         totalRating,
         numberOfRatings,
         averageRating: newAverageRating,
       });
-  
+
       setRating(value);
       setAverageRating(newAverageRating);
     } catch (error) {
@@ -221,41 +221,62 @@ const BookDetail = () => {
     }
   };
 
+  const handleAnswer = async (questionId) => {
+    const answer = prompt('Enter your answer:');
+    if (!answer) return;
+
+    try {
+      const questionRef = doc(db, 'books_pending', bookId, 'questions', questionId);
+      await updateDoc(questionRef, { answer });
+
+      notification.success({
+        message: 'Answer Submitted',
+        description: 'Your answer has been successfully added.',
+      });
+    } catch (error) {
+      console.error('Error submitting answer:', error);
+      notification.error({
+        message: 'Error',
+        description: 'There was an issue submitting your answer. Please try again.',
+      });
+    }
+  };
+
   if (loading) {
     return <p>Loading book details...</p>;
   }
 
   return (
     <div className="book-detail-page">
-<div className="book-detail">
-  <div className="book-image">
-    <img src={book.coverImageUrl} alt={`${book.title} cover`} />
-    <div className="rating-section">
-      <h3>Average Rating: {averageRating.toFixed(1)}</h3>
-      <Rate value={rating} onChange={handleRating} />
-    </div>
-  </div>
+      <div className="book-detail">
+        <div className="book-image">
+          <img src={book.coverImageUrl} alt={`${book.title} cover`} />
+          <div className="rating-section">
+            <h3>Average Rating: {averageRating.toFixed(1)}</h3>
+            <Rate value={rating} onChange={handleRating} />
+          </div>
+        </div>
 
-  <div className="book-info">
-    <h1 className="book-title">{book.title}</h1>
-    <p><strong>Author:</strong> {book.author}</p>
-    <p><strong>Description:</strong> {book.description}</p>
-    <p><strong>Price:</strong> ${book.price}</p>
-    <p><strong>Category:</strong> {book.category}</p>
+        <div className="book-info">
+          <h1 className="book-title">{book.title}</h1>
+          <p><strong>Author:</strong> {book.author}</p>
+          <p><strong>Description:</strong> {book.description}</p>
+          <p><strong>Price:</strong> ${book.price}</p>
+          <p><strong>Category:</strong> {book.category}</p>
 
-    {book.pdfUrl && (
-      <div className="pdf-viewer">
-        <h3>Read the PDF:</h3>
-        <iframe
-          src={book.pdfUrl}
-          width="100%"
-          height="600px"
-          title="PDF Viewer"
-        />
+          {book.pdfUrl && (
+            <div className="pdf-viewer">
+              <h3>Read the PDF:</h3>
+              <iframe
+                src={book.pdfUrl}
+                width="100%"
+                height="600px"
+                title="PDF Viewer"
+              />
+            </div>
+          )}
+        </div>
       </div>
-    )}
-  </div>
-</div>
 
       <div className="comments-section">
         <h3>Comments</h3>
@@ -308,7 +329,19 @@ const BookDetail = () => {
                   title={question.userName}
                   description={question.content}
                 />
-                {question.answer && <p><strong>Answer:</strong> {question.answer}</p>}
+                {question.answer ? (
+                  <p><strong>Author's Answer:</strong> {question.answer}</p>
+                ) : (
+                  user && (
+                    <Button
+                      type="primary"
+                      onClick={() => handleAnswer(question.id)}
+                      style={{ marginTop: '10px' }}
+                    >
+                      Answer
+                    </Button>
+                  )
+                )}
               </List.Item>
             )}
           />
