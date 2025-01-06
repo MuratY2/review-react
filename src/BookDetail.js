@@ -222,25 +222,76 @@ const BookDetail = () => {
   };
 
   const handleAnswer = async (questionId) => {
-    const answer = prompt('Enter your answer:');
-    if (!answer) return;
-
+    if (!user) {
+      notification.warning({
+        message: 'Login Required',
+        description: 'Please log in to submit an answer request.',
+      });
+      return;
+    }
+  
     try {
-      const questionRef = doc(db, 'books_pending', bookId, 'questions', questionId);
-      await updateDoc(questionRef, { answer });
-
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+  
+      if (!userSnap.exists() || userSnap.data().role !== 'author') {
+        notification.warning({
+          message: 'Not Authorized',
+          description: 'Only verified authors can request answering permissions.',
+        });
+        return;
+      }
+  
+      const existingRequestRef = doc(db, 'answering_requests', `${user.uid}_${bookId}`);
+      const existingRequest = await getDoc(existingRequestRef);
+  
+      if (existingRequest.exists()) {
+        const { status } = existingRequest.data();
+  
+        if (status === 'pending') {
+          notification.info({
+            message: 'Request Already Submitted',
+            description: 'Your request for answering permissions is pending approval.',
+          });
+        } else if (status === 'approved') {
+          // Allow answering directly if approved
+          const answer = prompt('Enter your answer:');
+          if (!answer) return;
+  
+          const questionRef = doc(db, 'books_pending', bookId, 'questions', questionId);
+          await updateDoc(questionRef, { answer });
+  
+          notification.success({
+            message: 'Answer Submitted',
+            description: 'Your answer has been successfully added.',
+          });
+        }
+        return;
+      }
+  
+      // Submit new request if none exists
+      await setDoc(existingRequestRef, {
+        userId: user.uid,
+        userName: user.displayName,
+        bookId: bookId,
+        status: 'pending',
+      });
+  
       notification.success({
-        message: 'Answer Submitted',
-        description: 'Your answer has been successfully added.',
+        message: 'Request Submitted',
+        description: 'Your request for answering permissions has been submitted.',
       });
     } catch (error) {
-      console.error('Error submitting answer:', error);
+      console.error('Error submitting answer request:', error);
       notification.error({
-        message: 'Error',
-        description: 'There was an issue submitting your answer. Please try again.',
+        message: 'Request Failed',
+        description: 'There was an error submitting your request. Please try again.',
       });
     }
   };
+  
+  
+  
 
   if (loading) {
     return <p>Loading book details...</p>;
