@@ -71,26 +71,25 @@ const Home = () => {
     fetchBestOfMonthBooks();
   }, []);
 
-  // Reviews Data
   const reviews = [
     {
       id: 1,
-      text: 'Lorem ipsum that packs a punch. For a new twist on an old classic, drop some Samuel L. Jackson filler text in your next project.',
-      author: 'Mohamoud Arafa',
-      role: 'Project Manager',
+      text: 'The digital library platform has transformed how I discover and consume technical content. The user interface is intuitive and the reading experience is seamless',
+      author: 'Farid Gahramanov',
+      role: 'Project Manager'
     },
     {
       id: 2,
-      text: 'Lorem ipsum that packs a punch. For a new twist on an old classic, drop some Samuel L. Jackson filler text in your next project.',
-      author: 'Fatima Mahmoud',
-      role: 'Product Designer',
+      text: 'As a designer, having access to such a diverse range of books has helped me stay current with industry trends. The user interface is intuitive and the reading experience is seamless.',
+      author: 'Murat Yazgan', 
+      role: 'Product Designer'
     },
     {
       id: 3,
-      text: 'Lorem ipsum that packs a punch. For a new twist on an old classic, drop some Samuel L. Jackson filler text in your next project.',
-      author: 'John Doe',
-      role: 'Software Engineer',
-    },
+      text: 'The selection of programming books is exceptional. I particularly appreciate the community features that let me discuss concepts with other developers.',
+      author: 'Esma Meral',
+      role: 'Software Engineer'
+    }
   ];
 
   // Categories Navigation

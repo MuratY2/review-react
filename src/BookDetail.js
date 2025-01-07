@@ -84,7 +84,7 @@ const BookDetail = () => {
     if (!user) {
       notification.warning({
         message: 'Login Required',
-        description: 'Please log in to rate the book.',
+        description: 'Please log in to rate this book.',
       });
       return;
     }
@@ -297,129 +297,153 @@ const BookDetail = () => {
     return <p>Loading book details...</p>;
   }
 
-  return (
-    <div className="book-detail-page">
-      <div className="book-detail">
-        <div className="book-image">
-          <img src={book.coverImageUrl} alt={`${book.title} cover`} />
+    return (
+      <div className="book-detail-page">
+        <div className="book-detail">
           <div className="rating-section">
             <h3>Average Rating: {averageRating.toFixed(1)}</h3>
-            <Rate value={rating} onChange={handleRating} />
+            <Rate 
+              value={rating} // Change from averageRating to rating
+              disabled={!user}
+              onChange={handleRating}
+              className="book-rating"
+            />
+            {!user && (
+              <p className="login-prompt">Log in to rate this book</p>
+            )}
+          </div>
+          
+          <div className="book-image">
+            <img src={book.coverImageUrl} alt={`${book.title} cover`} />
+          </div>
+
+          <div className="book-info">
+            <h1 className="book-title">{book.title}</h1>
+            <p><strong>Author:</strong> {book.author}</p>
+            <p><strong>Description:</strong> {book.description}</p>
+            <p><strong>Category:</strong> {book.category}</p>
+            {book.pdfUrl && (
+              <div className="pdf-viewer">
+                <h3>Read the PDF:</h3>
+                <iframe
+                  src={book.pdfUrl}
+                  width="100%"
+                  height="600px"
+                  title="PDF Viewer"
+                />
+              </div>
+            )}
           </div>
         </div>
-
-        <div className="book-info">
-          <h1 className="book-title">{book.title}</h1>
-          <p><strong>Author:</strong> {book.author}</p>
-          <p><strong>Description:</strong> {book.description}</p>
-          <p><strong>Price:</strong> ${book.price}</p>
-          <p><strong>Category:</strong> {book.category}</p>
-
-          {book.pdfUrl && (
-            <div className="pdf-viewer">
-              <h3>Read the PDF:</h3>
-              <iframe
-                src={book.pdfUrl}
-                width="100%"
-                height="600px"
-                title="PDF Viewer"
+    
+        <div className="comments-section">
+          <h3 className="section-title">Reader Comments</h3>
+          {comments.length > 0 ? (
+            <List
+              className="comments-list"
+              dataSource={comments}
+              renderItem={(comment) => (
+                <List.Item className="comment-item">
+                  <List.Item.Meta
+                    avatar={<Avatar className="comment-avatar">{comment.userName[0]}</Avatar>}
+                    title={<span className="comment-username">{comment.userName}</span>}
+                    description={<p className="comment-content">{comment.content}</p>}
+                  />
+                </List.Item>
+              )}
+            />
+          ) : (
+            <p className="no-comments">Be the first to share your thoughts!</p>
+          )}
+    
+          <div className="comment-form">
+            {user ? (
+              <div className="add-comment">
+                <TextArea
+                  rows={4}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Share your thoughts about this book..."
+                  className="comment-input"
+                />
+                <Button
+                  type="primary"
+                  onClick={handleAddComment}
+                  loading={loadingComment}
+                  className="submit-comment"
+                >
+                  Post Comment
+                </Button>
+              </div>
+            ) : (
+              <div className="login-prompt-section">
+                <p>Please log in to leave a comment</p>
+              </div>
+            )}
+          </div>
+        </div>
+    
+        <div className="questions-section">
+          <h3 className="section-title">Questions for the Author</h3>
+          {questions.length > 0 ? (
+            <List
+              className="questions-list"
+              dataSource={questions}
+              renderItem={(question) => (
+                <List.Item className="question-item">
+                  <List.Item.Meta
+                    avatar={<Avatar className="question-avatar">{question.userName[0]}</Avatar>}
+                    title={<span className="question-username">{question.userName}</span>}
+                    description={<p className="question-content">{question.content}</p>}
+                  />
+                  {question.answer ? (
+                    <div className="answer-section">
+                      <p><strong>Author's Answer:</strong> {question.answer}</p>
+                    </div>
+                  ) : (
+                    user && (
+                      <Button
+                        type="primary"
+                        onClick={() => handleAnswer(question.id)}
+                        className="answer-button"
+                      >
+                        Answer
+                      </Button>
+                    )
+                  )}
+                </List.Item>
+              )}
+            />
+          ) : (
+            <p className="no-questions">No questions yet. Be the first to ask!</p>
+          )}
+    
+          {user ? (
+            <div className="add-question">
+              <TextArea
+                rows={4}
+                value={newQuestion}
+                onChange={(e) => setNewQuestion(e.target.value)}
+                placeholder="Ask the author a question..."
+                className="question-input"
               />
+              <Button
+                type="primary"
+                onClick={handleAddQuestion}
+                className="submit-question"
+              >
+                Submit Question
+              </Button>
+            </div>
+          ) : (
+            <div className="login-prompt-section">
+              <p>Please log in to ask a question</p>
             </div>
           )}
         </div>
       </div>
+    );
+  }
 
-      <div className="comments-section">
-        <h3>Comments</h3>
-        {comments.length > 0 ? (
-          <List
-            dataSource={comments}
-            renderItem={(comment) => (
-              <List.Item>
-                <List.Item.Meta
-                  avatar={<Avatar>{comment.userName[0]}</Avatar>}
-                  title={comment.userName}
-                  description={comment.content}
-                />
-              </List.Item>
-            )}
-          />
-        ) : (
-          <p>No comments yet. Be the first to comment!</p>
-        )}
-
-        {user && (
-          <div className="add-comment">
-            <TextArea
-              rows={4}
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Add a comment..."
-            />
-            <Button
-              type="primary"
-              onClick={handleAddComment}
-              loading={loadingComment}
-              style={{ marginTop: '10px' }}
-            >
-              Submit
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <div className="questions-section">
-        <h3>Questions for the Author</h3>
-        {questions.length > 0 ? (
-          <List
-            dataSource={questions}
-            renderItem={(question) => (
-              <List.Item>
-                <List.Item.Meta
-                  avatar={<Avatar>{question.userName[0]}</Avatar>}
-                  title={question.userName}
-                  description={question.content}
-                />
-                {question.answer ? (
-                  <p><strong>Author's Answer:</strong> {question.answer}</p>
-                ) : (
-                  user && (
-                    <Button
-                      type="primary"
-                      onClick={() => handleAnswer(question.id)}
-                      style={{ marginTop: '10px' }}
-                    >
-                      Answer
-                    </Button>
-                  )
-                )}
-              </List.Item>
-            )}
-          />
-        ) : (
-          <p>No questions yet. Be the first to ask a question!</p>
-        )}
-
-        {user && (
-          <div className="add-question">
-            <TextArea
-              rows={4}
-              value={newQuestion}
-              onChange={(e) => setNewQuestion(e.target.value)}
-              placeholder="Ask the author a question..."
-            />
-            <Button
-              type="primary"
-              onClick={handleAddQuestion}
-              style={{ marginTop: '10px' }}
-            >
-              Submit
-            </Button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 export default BookDetail;

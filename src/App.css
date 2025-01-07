@@ -343,8 +343,8 @@
 
 /* Featured Books Section Styles */
 .featured-books {
-  padding: 60px 20px;
-  max-width: 1200px;
+  padding: 80px 20px;
+  max-width: 1300px;
   margin: 0 auto;
 }
 
@@ -402,8 +402,9 @@
 .books-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
+  gap: 60px;
   padding: 20px 0;
+  padding-left: 160px;
 }
 
 .book-card {
@@ -963,6 +964,7 @@
 
 
 
+
 /* Responsive styles */
 @media (max-width: 1024px) {
   .header {
@@ -1084,7 +1086,7 @@
 @media (max-width: 576px) {
   .books-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    gap: 100px;
   }
 
   .featured-title {

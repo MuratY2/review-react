@@ -2,71 +2,114 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
+  padding: 3rem;
   background-color: #f8f9fa;
   width: 100%;
   min-height: calc(100vh - 80px);
   box-sizing: border-box;
-  gap: 2rem;
+  gap: 3rem;
 }
 
-/* Book Detail Section */
 .book-detail {
   display: flex;
   flex-wrap: wrap;
-  max-width: 1200px;
+  max-width: 1400px;
   width: 100%;
   background-color: #fff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
   overflow: hidden;
-  gap: 1rem;
-  padding: 1.5rem;
+  gap: 2rem;
+  padding: 2rem;
+  position: relative;
 }
 
-.book-detail .book-image {
+.book-image {
   flex: none;
-  max-width: 300px; /* Match the image size */
+  max-width: 400px;
   margin: 0 auto;
-  text-align: center;
-  overflow: hidden; /* Ensure no extra space */
+  padding: 1rem;
 }
 
-.book-detail .book-image img {
+.book-image img {
   max-width: 100%;
-  max-height: 400px;
+  max-height: 500px;
   object-fit: contain;
-  display: block;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.book-detail .book-info {
-  flex: 2 1 500px;
+.book-info {
+  flex: 1;
+  min-width: 300px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.book-detail .book-title {
+.book-title {
   font-size: 2rem;
   font-weight: bold;
   color: #333;
   margin-bottom: 0.5rem;
 }
 
-.book-detail .book-info p {
+.book-info p {
   margin: 0;
   color: #555;
   line-height: 1.6;
   font-size: 1rem;
 }
 
-.book-detail .book-info strong {
+.book-info strong {
   color: #222;
   font-weight: bold;
 }
 
+/* Rating Section */
+.rating-section {
+  position: absolute;
+  left: 3rem;
+  top: 40rem;
+  text-align: center;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  width: 350px;
+  height: 250px;
+}
+
+.rating-section h3 {
+  color: #333;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  padding-top: 70px;
+}
+
+.book-rating.ant-rate {
+  font-size: 24px;
+}
+
+.ant-rate-star:not(.ant-rate-star-full) .ant-rate-star-first,
+.ant-rate-star:not(.ant-rate-star-full) .ant-rate-star-second {
+  color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.ant-rate-star-first,
+.ant-rate-star-second,
+.ant-rate-disabled.ant-rate .ant-rate-star {
+  color: #EB5F5D !important;
+}
+
+.login-prompt {
+  margin-top: 0.8rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* PDF Viewer */
 .pdf-viewer {
   margin-top: 1rem;
 }
@@ -75,103 +118,151 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   width: 100%;
-  height: 300px;
-}
-
-/* Rating Section */
-.rating-section {
-  margin: 1rem 0 0 0; /* Add margin above */
-  flex: none;
-  text-align: center;
-}
-
-.rating-section h3 {
-  margin-bottom: 0.5rem;
-  font-size: 1.25rem;
+  height: 600px;
 }
 
 /* Comments Section */
-.comments-section,
-.questions-section {
-  max-width: 1200px;
+.comments-section {
+  max-width: 1400px;
   width: 100%;
   background-color: #fff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
 }
 
-.comments-section h3,
-.questions-section h3 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+.section-title {
+  color: #EB5F5D;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
-.ant-list-item {
-  padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+.comments-list {
+  margin-bottom: 2rem;
 }
 
-.ant-list-item-meta-title {
-  font-weight: bold;
+.comment-item {
+  padding: 1.5rem !important;
+  background: #fafafa;
+  border-radius: 12px !important;
+  margin-bottom: 1.5rem !important;
+  transition: transform 0.2s;
+}
+
+.comment-item:hover {
+  transform: translateY(-2px);
+}
+
+.comment-avatar {
+  background-color: #EB5F5D !important;
+  color: white !important;
+}
+
+.comment-username {
   color: #333;
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
-.ant-list-item-meta-description {
+.comment-content {
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0.5rem 0 0 0;
+}
+
+.comment-form {
+  margin-top: 2rem;
+  border-top: 1px solid #eee;
+  padding-top: 2rem;
+}
+
+.comment-input {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 1rem;
+  resize: none;
+  margin-bottom: 1rem;
+}
+
+.comment-input:focus {
+  border-color: #EB5F5D;
+  box-shadow: 0 0 0 2px rgba(235, 95, 93, 0.1);
+}
+
+.submit-comment,
+.submit-question,
+.answer-button {
+  background-color: #EB5F5D !important;
+  border: none !important;
+  border-radius: 8px !important;
+  height: 40px;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.submit-comment:hover,
+.submit-question:hover,
+.answer-button:hover {
+  background-color: #d54d4b !important;
+}
+
+.login-prompt-section {
+  text-align: center;
+  padding: 2rem;
+  background: #fafafa;
+  border-radius: 12px;
   color: #666;
 }
 
-/* Form Sections */
-.add-comment,
-.add-question {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* Questions Section */
+.questions-section {
+  max-width: 1400px;
+  width: 100%;
+  background-color: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-top: 2rem;
 }
 
-.add-comment .ant-input,
-.add-question .ant-input {
-  border: 1px solid #ddd;
+.question-item {
+  padding: 1.5rem !important;
+  background: #fafafa;
+  border-radius: 12px !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.answer-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f0f0f0;
   border-radius: 8px;
-  padding: 0.75rem;
-  font-size: 1rem;
-}
-
-.add-comment .ant-btn,
-.add-question .ant-btn {
-  align-self: flex-end;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-}
-
-.add-comment .ant-btn:hover,
-.add-question .ant-btn:hover {
-  background-color: #0056b3;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .book-detail-page {
+    padding: 1.5rem;
+  }
+  
   .book-detail {
     flex-direction: column;
     align-items: center;
+    padding-top: 2rem;
   }
 
-  .book-detail .book-image {
+  .rating-section {
+    position: static;
+    margin: 1rem auto;
+    width: calc(100% - 2rem);
+  }
+
+  .book-image {
     max-width: 100%;
-  }
-
-  .book-detail .book-info {
-    flex: none;
-    width: 100%;
   }
 }
