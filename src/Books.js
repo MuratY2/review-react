@@ -26,7 +26,7 @@ const Books = () => {
     historical: 'Historical',
   };
 
-  // Memoize the sorting function
+  // Memoized sort function
   const handleSort = useCallback((booksToSort, option) => {
     if (!booksToSort) return [];
     
@@ -43,7 +43,7 @@ const Books = () => {
     }
   }, []);
 
-  // Memoize the filtering function
+  // Memoized filter function
   const filterBooks = useCallback((booksToFilter, term) => {
     if (!term) return booksToFilter;
     
@@ -55,20 +55,17 @@ const Books = () => {
     );
   }, []);
 
-  // Memoize the displayed books calculation
+  // Compute displayed books
   const displayedBooks = useMemo(() => {
     let filtered = books;
-    
-    // Only filter by category if it's not 'all' and category is defined
+    // Only filter by category if it's not 'all'
     if (category && category !== 'all') {
-      filtered = books.filter(book => book.category === category);
+      filtered = filtered.filter((book) => book.category === category);
     }
-    
     filtered = filterBooks(filtered, searchTerm);
     return handleSort(filtered, sortOption);
   }, [books, category, searchTerm, sortOption, filterBooks, handleSort]);
 
-  // Fetch books only when mounted
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -100,7 +97,6 @@ const Books = () => {
     setSearchTerm(e.target.value);
   };
 
-  // Get current category for display
   const currentCategory = category || 'all';
 
   return (
@@ -124,9 +120,12 @@ const Books = () => {
                     to={`/books/${key}`}
                     className={currentCategory === key ? 'active' : ''}
                   >
-                    {name} ({books.filter((book) =>
-                      key === 'all' ? true : book.category === key
-                    ).length})
+                    {name}{' '}
+                    (
+                      {books.filter((book) =>
+                        key === 'all' ? true : book.category === key
+                      ).length}
+                    )
                   </Link>
                 </li>
               ))}
@@ -195,11 +194,16 @@ const Books = () => {
                   <Link
                     to={`/bookdetail/${book.id}`}
                     key={book.id}
-                    className={`book-card ${viewMode === 'list' ? 'list-card' : ''}`}
+                    className={`book-card ${
+                      viewMode === 'list' ? 'list-card' : ''
+                    }`}
                   >
                     <div className="book-image">
                       {book.isHot && <span className="hot-label">HOT</span>}
-                      <img src={book.coverImageUrl} alt={`${book.title} cover`} />
+                      <img
+                        src={book.coverImageUrl}
+                        alt={`${book.title} cover`}
+                      />
                     </div>
                     <div className="book-info">
                       <h3>{book.title}</h3>
@@ -213,7 +217,9 @@ const Books = () => {
                 ))
               ) : (
                 <div className="empty-container">
-                  <div className="empty-message">No books found. Try a different search.</div>
+                  <div className="empty-message">
+                    No books found. Try a different search.
+                  </div>
                 </div>
               )}
             </div>

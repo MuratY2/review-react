@@ -6,7 +6,8 @@ body {
   max-width: 1600px;
   margin: 0 auto;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   min-height: calc(100vh - 40px);
 }
 
@@ -52,8 +53,11 @@ body {
   background: #fff;
   border-radius: 12px;
   min-height: 90vh;
-  width: 1600px;
   box-sizing: border-box;
+  /* Key fix: let it be fluid */
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
 .sidebar {
@@ -122,7 +126,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap; /* Allows wrapping in smaller viewports */
+  flex-wrap: wrap;
 }
 
 .view-buttons {
@@ -410,6 +414,10 @@ body {
 
   .main-content {
     padding: 16px;
+  }
+
+  .empty-container {
+    width: 100%;
   }
 }
 

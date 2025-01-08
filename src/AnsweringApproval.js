@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  getDoc,
+  deleteDoc,
+  query,
+  where
+} from 'firebase/firestore';
 import { db } from './firebase';
 import { notification, List, Button } from 'antd';
 import './AnsweringApproval.css';
@@ -10,16 +19,19 @@ const AnsweringApproval = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'answering_requests'));
-        
-        // For each request doc, also fetch the book's title from 'books_pending'
+        // Only fetch requests where status == 'pending'
+        const colRef = collection(db, 'answering_requests');
+        const pendingQuery = query(colRef, where('status', '==', 'pending'));
+        const querySnapshot = await getDocs(pendingQuery);
+
+        // For each request doc, fetch the book's title (if needed)
         const requestData = await Promise.all(
           querySnapshot.docs.map(async (docSnapshot) => {
-            const docData = docSnapshot.data();
+            const reqData = docSnapshot.data();
             let bookTitle = '';
 
-            if (docData.bookId) {
-              const bookRef = doc(db, 'books_pending', docData.bookId);
+            if (reqData.bookId) {
+              const bookRef = doc(db, 'books_pending', reqData.bookId);
               const bookSnap = await getDoc(bookRef);
               if (bookSnap.exists()) {
                 const bookData = bookSnap.data();
@@ -27,7 +39,11 @@ const AnsweringApproval = () => {
               }
             }
 
-            return { id: docSnapshot.id, ...docData, bookTitle };
+            return {
+              id: docSnapshot.id,
+              ...reqData,
+              bookTitle
+            };
           })
         );
 
@@ -59,6 +75,7 @@ const AnsweringApproval = () => {
         description: 'The answering request has been approved.',
       });
 
+      // Remove this request from local state so it disappears immediately
       setRequests((prev) => prev.filter((request) => request.id !== requestId));
     } catch (error) {
       console.error('Error approving request:', error);
@@ -72,13 +89,15 @@ const AnsweringApproval = () => {
   const handleReject = async (requestId) => {
     try {
       const requestRef = doc(db, 'answering_requests', requestId);
-      await updateDoc(requestRef, { status: 'rejected' });
+      // Delete it from Firestore if rejected
+      await deleteDoc(requestRef);
 
       notification.success({
         message: 'Rejected',
-        description: 'The answering request has been rejected.',
+        description: 'The answering request has been rejected & removed.',
       });
 
+      // Remove from state
       setRequests((prev) => prev.filter((request) => request.id !== requestId));
     } catch (error) {
       console.error('Error rejecting request:', error);
@@ -131,7 +150,9 @@ const AnsweringApproval = () => {
                         </div>
                       </div>
                       <div
-                        className={`status-badge status-${request.status || 'pending'}`}
+                        className={`status-badge status-${
+                          request.status || 'pending'
+                        }`}
                       >
                         {request.status || 'pending'}
                       </div>
@@ -146,7 +167,12 @@ const AnsweringApproval = () => {
                         <div className="request-meta">
                           <span className="meta-item">
                             <i className="meta-icon calendar" />
-                            {new Date(request.timestamp?.toDate()).toLocaleDateString()}
+                            {/* Safely handle if request.timestamp is missing */}
+                            {request.timestamp?.toDate
+                              ? new Date(
+                                  request.timestamp.toDate()
+                                ).toLocaleDateString()
+                              : 'No Date'}
                           </span>
                         </div>
                       </div>
@@ -178,10 +204,7 @@ const AnsweringApproval = () => {
           <div className="empty-state">
             <div className="empty-icon">📫</div>
             <h3>No Pending Requests</h3>
-            <p>
-              There are currently no answering requests that require your
-              attention.
-            </p>
+            <p>There are currently no answering requests.</p>
           </div>
         )}
       </div>
