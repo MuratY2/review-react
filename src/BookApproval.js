@@ -63,7 +63,10 @@ const BookApproval = () => {
         const q = query(collection(db, 'books_pending'), where('status', '==', 'pending'));
         const querySnapshot = await getDocs(q);
 
-        const booksData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const booksData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setPendingBooks(booksData);
       } catch (error) {
         console.error('Error fetching pending books:', error);
@@ -118,7 +121,13 @@ const BookApproval = () => {
                   <img
                     src={book.coverImageUrl}
                     alt={`${book.title} cover`}
-                    style={{ width: '100%', height: 'auto' }}
+                    style={{
+                      width: '300px',
+                      height: '300px',
+                      objectFit: 'contain',
+                      display: 'block',
+                      margin: '0 auto'
+                    }}
                   />
                   <h3 className="book-title">{book.title}</h3>
                   <p className="book-author">
@@ -126,13 +135,11 @@ const BookApproval = () => {
                   </p>
                   <p className="book-description">{book.description}</p>
 
-                  {/* NEW: Show PDF if available */}
                   {book.pdfUrl && (
                     <div className="pdf-preview">
                       <p>
                         <strong>PDF Preview:</strong>
                       </p>
-
                       <iframe
                         src={book.pdfUrl}
                         title="PDF Preview"
