@@ -19,6 +19,7 @@ import BookUpload from "./BookUpload";
 import AuthorApproval from "./AuthorApproval";
 import Home from "./Home";
 import AnsweringApproval from "./AnsweringApproval";
+import EventApproval from "./EventApproval";
 import "./App.css";
 
 const App = () => {
@@ -116,6 +117,9 @@ const App = () => {
                       <Link to="/answeringapproval" className="dropdown-item">
                         Answering Approvals
                       </Link>
+                      <Link to="/eventapproval" className="dropdown-item">
+                        Event Approvals
+                      </Link>
                     </>
                   )}
                   <button onClick={handleLogout} className="dropdown-item">
@@ -153,7 +157,7 @@ const App = () => {
           <Route path="/bookapproval" element={<BookApproval />} />
           <Route path="/authorapproval" element={<AuthorApproval />} />
           <Route path="/answeringapproval" element={<AnsweringApproval />} />
-
+          <Route path="/eventapproval" element={<EventApproval />} />
         </Routes>
       </main>
       <Footer />
