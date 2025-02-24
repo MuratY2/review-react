@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { doc, getDoc, setDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Rate, Input, Button, List, Avatar, notification } from 'antd';
 import './BookDetail.css';
-import * as toxicity from '@tensorflow-models/toxicity'; // Import TensorFlow.js toxicity model
-import '@tensorflow/tfjs'; // TensorFlow.js required
+import * as toxicity from '@tensorflow-models/toxicity';
+import '@tensorflow/tfjs';
 
 const { TextArea } = Input;
 
@@ -22,11 +22,24 @@ const BookDetail = () => {
   const [loadingComment, setLoadingComment] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState('');
-  const [toxicityModel, setToxicityModel] = useState(null); // Added state for toxicity model
+  const [toxicityModel, setToxicityModel] = useState(null);
+
+  // Track user's role if we need to show "Claim Authorship"
+  const [userRole, setUserRole] = useState(null);
+  // Track if there's an existing authorship request pending
+  const [authorshipRequestPending, setAuthorshipRequestPending] = useState(false);
 
   useEffect(() => {
-    onAuthStateChanged(auth, (currentUser) => {
+    onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        const userRef = doc(db, 'users', currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          setUserRole(data.role);
+        }
+      }
     });
   }, []);
 
@@ -87,7 +100,7 @@ const BookDetail = () => {
   useEffect(() => {
     const loadModel = async () => {
       try {
-        const model = await toxicity.load(0.9); // Load with 90% confidence threshold
+        const model = await toxicity.load(0.9);
         setToxicityModel(model);
       } catch (error) {
         console.error('Error loading toxicity model:', error);
@@ -262,15 +275,35 @@ const BookDetail = () => {
     }
   };
 
+  /**
+   * If the official "linkedAuthorId" is the current user, they can answer directly.
+   * Otherwise, if there's no linkedAuthorId, we use the old request approach.
+   */
   const handleAnswer = async (questionId) => {
     if (!user) {
       notification.warning({
         message: 'Login Required',
-        description: 'Please log in to submit an answer request.',
+        description: 'Please log in to submit an answer.',
       });
       return;
     }
 
+    // If this book is linked to an author and that author is the current user, directly answer
+    if (book?.linkedAuthorId && book.linkedAuthorId === user.uid) {
+      const answer = prompt('Enter your answer:');
+      if (!answer) return;
+
+      const questionRef = doc(db, 'books_pending', bookId, 'questions', questionId);
+      await updateDoc(questionRef, { answer });
+
+      notification.success({
+        message: 'Answer Submitted',
+        description: 'Your answer has been successfully added.',
+      });
+      return;
+    }
+
+    // Otherwise, fallback to the existing "answering_requests" logic if the user is an author
     try {
       const userRef = doc(db, 'users', user.uid);
       const userSnap = await getDoc(userRef);
@@ -331,8 +364,78 @@ const BookDetail = () => {
     }
   };
 
+  /**
+   * Handle requesting authorship of this book
+   */
+  const handleClaimAuthorship = async () => {
+    if (!user) {
+      notification.warning({
+        message: 'Login Required',
+        description: 'Please log in as an author to claim authorship.',
+      });
+      return;
+    }
+
+    // Must have role=author
+    if (userRole !== 'author') {
+      notification.warning({
+        message: 'Not Authorized',
+        description: 'Only users with an Author role can claim authorship.',
+      });
+      return;
+    }
+
+    try {
+      // Check if there's already a pending request
+      const requestRef = doc(db, 'authorship_requests', `${user.uid}_${bookId}`);
+      const requestSnap = await getDoc(requestRef);
+
+      if (requestSnap.exists()) {
+        const { status } = requestSnap.data();
+        if (status === 'pending') {
+          notification.info({
+            message: 'Request Already Submitted',
+            description: 'Your authorship request is still pending approval.',
+          });
+          return;
+        } else if (status === 'approved') {
+          notification.info({
+            message: 'Already Approved',
+            description: 'You are already approved as the author of this book.',
+          });
+          return;
+        }
+      }
+
+      // Otherwise, create a new authorship request
+      await setDoc(requestRef, {
+        userId: user.uid,
+        userName: user.displayName,
+        bookId: bookId,
+        status: 'pending',
+      });
+
+      setAuthorshipRequestPending(true);
+      notification.success({
+        message: 'Authorship Request Submitted',
+        description: 'Your request to claim authorship has been submitted for approval.',
+      });
+    } catch (error) {
+      console.error('Error claiming authorship:', error);
+      notification.error({
+        message: 'Request Failed',
+        description: 'There was an error submitting your authorship request.',
+      });
+    }
+  };
+
   if (loading) {
     return <p>Loading book details...</p>;
+  }
+
+  // If the book doesn't exist, you can handle it gracefully
+  if (!book) {
+    return <p>Book not found.</p>;
   }
 
   return (
@@ -357,7 +460,34 @@ const BookDetail = () => {
 
         <div className="book-info">
           <h1 className="book-title">{book.title}</h1>
-          <p><strong>Author:</strong> {book.author}</p>
+
+          {/* Author field logic */}
+          {book.linkedAuthorId ? (
+            // If there's a linkedAuthorId, we make the author's name clickable to lead to that author's profile
+            <p>
+              <strong>Author: </strong>
+              <Link to={`/author/${book.linkedAuthorId}`}>{book.author}</Link>
+            </p>
+          ) : (
+            <p>
+              <strong>Author:</strong> {book.author} <br />
+              <em>(No official author account matched yet)</em>
+            </p>
+          )}
+
+          {/* If there's no linkedAuthorId, show a button for authors to claim authorship */}
+          {!book.linkedAuthorId && userRole === 'author' && (
+            <div style={{ marginTop: '10px' }}>
+              <Button
+                type="primary"
+                disabled={authorshipRequestPending}
+                onClick={handleClaimAuthorship}
+              >
+                {authorshipRequestPending ? 'Request Pending...' : 'Claim Authorship'}
+              </Button>
+            </div>
+          )}
+
           <p><strong>Description:</strong> {book.description}</p>
           <p><strong>Category:</strong> {book.category}</p>
           {book.pdfUrl && (

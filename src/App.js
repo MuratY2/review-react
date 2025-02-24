@@ -20,6 +20,11 @@ import AuthorApproval from "./AuthorApproval";
 import Home from "./Home";
 import AnsweringApproval from "./AnsweringApproval";
 import EventApproval from "./EventApproval";
+
+// NEW imports
+import AuthorProfile from "./AuthorProfile";
+import AuthorshipApproval from "./AuthorshipApproval";
+
 import "./App.css";
 
 const App = () => {
@@ -91,7 +96,6 @@ const App = () => {
           <Link to="/bookupload" className="menu-item">
             Upload
           </Link>
-          
         </nav>
 
         {/* Account Dropdown */}
@@ -119,6 +123,10 @@ const App = () => {
                       </Link>
                       <Link to="/eventapproval" className="dropdown-item">
                         Event Approvals
+                      </Link>
+                      {/* NEW: Authorship approval route */}
+                      <Link to="/authorshipapproval" className="dropdown-item">
+                        Authorship Approvals
                       </Link>
                     </>
                   )}
@@ -158,6 +166,10 @@ const App = () => {
           <Route path="/authorapproval" element={<AuthorApproval />} />
           <Route path="/answeringapproval" element={<AnsweringApproval />} />
           <Route path="/eventapproval" element={<EventApproval />} />
+
+          {/* NEW routes */}
+          <Route path="/author/:authorId" element={<AuthorProfile />} />
+          <Route path="/authorshipapproval" element={<AuthorshipApproval />} />
         </Routes>
       </main>
       <Footer />
