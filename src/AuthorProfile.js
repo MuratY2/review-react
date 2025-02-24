@@ -1,103 +1,132 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { useParams, Link } from 'react-router-dom';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
-import { notification, List } from 'antd';
+import { notification } from 'antd';
 import './AuthorProfile.css';
 
 const AuthorProfile = () => {
   const { authorId } = useParams();
-  const [authorData, setAuthorData] = useState(null);
+
+  // Info from authors_pending doc
+  const [authorDoc, setAuthorDoc] = useState(null);
+  // All books that link to this author
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [validAuthor, setValidAuthor] = useState(true);
 
   useEffect(() => {
-    const fetchAuthor = async () => {
+    const fetchAuthorAndBooks = async () => {
       setLoading(true);
       try {
-        const authorRef = doc(db, 'users', authorId);
-        const authorSnap = await getDoc(authorRef);
+        // 1. Get the doc from authors_pending where userId == authorId
+        const authorsColRef = collection(db, 'authors_pending');
+        const authorQuery = query(authorsColRef, where('userId', '==', authorId));
+        const authorSnap = await getDocs(authorQuery);
 
-        if (!authorSnap.exists()) {
-          setValidAuthor(false);
+        if (authorSnap.empty) {
+          // No matching doc found
+          setAuthorDoc(null);
+          setBooks([]);
           setLoading(false);
           return;
         }
 
-        const data = authorSnap.data();
-        if (data.role !== 'author') {
-          setValidAuthor(false);
+        // We’ll assume the first doc is the relevant one
+        const docData = authorSnap.docs[0].data();
+
+        // If the status isn't "approved," handle accordingly:
+        if (docData.status !== 'approved') {
+          setAuthorDoc(null);
+          setBooks([]);
           setLoading(false);
           return;
         }
 
-        setAuthorData(data);
+        setAuthorDoc(docData);
 
-        // Now fetch all books linked to this author
+        // 2. Fetch all books that have linkedAuthorId == authorId
         const booksRef = collection(db, 'books_pending');
-        const q = query(booksRef, where('linkedAuthorId', '==', authorId));
-        const querySnapshot = await getDocs(q);
-        const bookList = querySnapshot.docs.map(docSnap => ({
-          id: docSnap.id,
-          ...docSnap.data(),
+        const booksQuery = query(booksRef, where('linkedAuthorId', '==', authorId));
+        const booksSnap = await getDocs(booksQuery);
+
+        const foundBooks = booksSnap.docs.map((bDoc) => ({
+          id: bDoc.id,
+          ...bDoc.data(),
         }));
-        setBooks(bookList);
+
+        setBooks(foundBooks);
       } catch (error) {
-        console.error('Error fetching author data:', error);
+        console.error('Error fetching author:', error);
         notification.error({
           message: 'Error',
-          description: 'Unable to fetch author data.',
+          description: 'Unable to load author data.',
         });
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAuthor();
+    fetchAuthorAndBooks();
   }, [authorId]);
 
   if (loading) {
     return <div className="author-profile-container">Loading Author...</div>;
   }
 
-  if (!validAuthor) {
+  // If no doc found or doc not approved:
+  if (!authorDoc) {
     return (
       <div className="author-profile-container">
         <h2>No Valid Author Found</h2>
-        <p>This user either does not exist or is not an author.</p>
+        <p>
+          We couldn’t find an approved author account for this user. 
+        </p>
       </div>
     );
   }
 
   return (
     <div className="author-profile-container">
-      <h2>Author Profile</h2>
-      <div className="author-info">
-        <p><strong>Name:</strong> {authorData?.displayName || 'Unknown'}</p>
-        <p><strong>Email:</strong> {authorData?.email || 'No public email'}</p>
-        {/* You can add more fields if you store them in 'users' collection, e.g. biography, website, etc. */}
+      <h2 className="author-name">{authorDoc.nameSurname}</h2>
+      <div className="author-details">
+        {authorDoc.bio && <p><strong>Bio:</strong> {authorDoc.bio}</p>}
+        {authorDoc.website && (
+          <p>
+            <strong>Website:</strong>{' '}
+            <a href={authorDoc.website} target="_blank" rel="noreferrer">
+              {authorDoc.website}
+            </a>
+          </p>
+        )}
+        {authorDoc.email && <p><strong>Contact Email:</strong> {authorDoc.email}</p>}
       </div>
 
-      <div className="books-by-author">
-        <h3>Books by this Author</h3>
-        {books.length > 0 ? (
-          <List
-            itemLayout="horizontal"
-            dataSource={books}
-            renderItem={(bookItem) => (
-              <List.Item>
-                <List.Item.Meta
-                  title={bookItem.title}
-                  description={bookItem.description}
-                />
-              </List.Item>
-            )}
-          />
-        ) : (
-          <p>No books are currently linked to this author.</p>
-        )}
-      </div>
+      <h3>Books by {authorDoc.nameSurname}</h3>
+      {books.length > 0 ? (
+        <div className="author-books-grid">
+          {books.map((book) => (
+            <Link to={`/bookdetail/${book.id}`} key={book.id} className="book-card">
+              <div className="book-image">
+                {book.isHot && <span className="hot-label">HOT</span>}
+                {book.coverImageUrl ? (
+                  <img
+                    src={book.coverImageUrl}
+                    alt={`${book.title} cover`}
+                  />
+                ) : (
+                  <div className="placeholder-cover">No Cover</div>
+                )}
+              </div>
+              <div className="book-info">
+                <h4 className="book-title">{book.title}</h4>
+                <p className="book-author">By {book.author}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p>No books linked to this author yet.</p>
+      )}
     </div>
   );
 };

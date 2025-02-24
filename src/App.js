@@ -18,10 +18,7 @@ import BookApproval from "./BookApproval";
 import BookUpload from "./BookUpload";
 import AuthorApproval from "./AuthorApproval";
 import Home from "./Home";
-import AnsweringApproval from "./AnsweringApproval";
 import EventApproval from "./EventApproval";
-
-// NEW imports
 import AuthorProfile from "./AuthorProfile";
 import AuthorshipApproval from "./AuthorshipApproval";
 
@@ -118,13 +115,10 @@ const App = () => {
                       <Link to="/authorapproval" className="dropdown-item">
                         Author Approvals
                       </Link>
-                      <Link to="/answeringapproval" className="dropdown-item">
-                        Answering Approvals
-                      </Link>
                       <Link to="/eventapproval" className="dropdown-item">
                         Event Approvals
                       </Link>
-                      {/* NEW: Authorship approval route */}
+                      {/* Authorship Approvals (NEW) */}
                       <Link to="/authorshipapproval" className="dropdown-item">
                         Authorship Approvals
                       </Link>
@@ -164,10 +158,8 @@ const App = () => {
           <Route path="/bookdetail/:bookId" element={<BookDetail />} />
           <Route path="/bookapproval" element={<BookApproval />} />
           <Route path="/authorapproval" element={<AuthorApproval />} />
-          <Route path="/answeringapproval" element={<AnsweringApproval />} />
           <Route path="/eventapproval" element={<EventApproval />} />
 
-          {/* NEW routes */}
           <Route path="/author/:authorId" element={<AuthorProfile />} />
           <Route path="/authorshipapproval" element={<AuthorshipApproval />} />
         </Routes>

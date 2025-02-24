@@ -276,8 +276,7 @@ const BookDetail = () => {
   };
 
   /**
-   * If the official "linkedAuthorId" is the current user, they can answer directly.
-   * Otherwise, if there's no linkedAuthorId, we use the old request approach.
+   * Only the "linkedAuthorId" can provide an answer
    */
   const handleAnswer = async (questionId) => {
     if (!user) {
@@ -303,65 +302,11 @@ const BookDetail = () => {
       return;
     }
 
-    // Otherwise, fallback to the existing "answering_requests" logic if the user is an author
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists() || userSnap.data().role !== 'author') {
-        notification.warning({
-          message: 'Not Authorized',
-          description: 'Only verified authors can request answering permissions.',
-        });
-        return;
-      }
-
-      const existingRequestRef = doc(db, 'answering_requests', `${user.uid}_${bookId}`);
-      const existingRequest = await getDoc(existingRequestRef);
-
-      if (existingRequest.exists()) {
-        const { status } = existingRequest.data();
-
-        if (status === 'pending') {
-          notification.info({
-            message: 'Request Already Submitted',
-            description: 'Your request for answering permissions is pending approval.',
-          });
-        } else if (status === 'approved') {
-          // Allow answering directly if approved
-          const answer = prompt('Enter your answer:');
-          if (!answer) return;
-
-          const questionRef = doc(db, 'books_pending', bookId, 'questions', questionId);
-          await updateDoc(questionRef, { answer });
-
-          notification.success({
-            message: 'Answer Submitted',
-            description: 'Your answer has been successfully added.',
-          });
-        }
-        return;
-      }
-
-      // Submit new request if none exists
-      await setDoc(existingRequestRef, {
-        userId: user.uid,
-        userName: user.displayName,
-        bookId: bookId,
-        status: 'pending',
-      });
-
-      notification.success({
-        message: 'Request Submitted',
-        description: 'Your request for answering permissions has been submitted.',
-      });
-    } catch (error) {
-      console.error('Error submitting answer request:', error);
-      notification.error({
-        message: 'Request Failed',
-        description: 'There was an error submitting your request. Please try again.',
-      });
-    }
+    // Otherwise, show not authorized
+    notification.warning({
+      message: 'Not Authorized',
+      description: 'Only the official linked author can answer questions for this book.',
+    });
   };
 
   /**
@@ -463,7 +408,7 @@ const BookDetail = () => {
 
           {/* Author field logic */}
           {book.linkedAuthorId ? (
-            // If there's a linkedAuthorId, we make the author's name clickable to lead to that author's profile
+            // If there's a linkedAuthorId, make the author's name clickable -> author profile
             <p>
               <strong>Author: </strong>
               <Link to={`/author/${book.linkedAuthorId}`}>{book.author}</Link>
@@ -569,7 +514,7 @@ const BookDetail = () => {
                     <p><strong>Author's Answer:</strong> {question.answer}</p>
                   </div>
                 ) : (
-                  user && (
+                  user && ( // Only show "Answer" button if logged in
                     <Button
                       type="primary"
                       onClick={() => handleAnswer(question.id)}
